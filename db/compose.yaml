@@ -1,0 +1,16 @@
+
+name: mysql_dev
+
+services:
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_dev:/home/girardc/projects/wallet_watcher/db/volumes
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Chr!stm@sTr33
+
+volumes:
+  mysql_dev:
