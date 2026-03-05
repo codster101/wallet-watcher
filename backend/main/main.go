@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/codster101/wallet-watcher/database"
 	"github.com/go-sql-driver/mysql"
 )
 

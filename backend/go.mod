@@ -1,4 +1,4 @@
-module wallet_watcher
+module github.com/codster101/wallet-watcher
 
 go 1.25.0
 
