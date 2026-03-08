@@ -24,19 +24,19 @@ function App() {
   //   }
   // }
 
-  const pullTransactions = async function() {
-    const response = await fetch("/api/getTransactions");
+  // const pullTransactions = async function() {
+  //   const response = await fetch("/api/getTransactions");
+  //
+  //   if (!response.ok) {
+  //     throw new Error(`Response status: ${response.status}`);
+  //   }
+  //
+  //   const result = await response.json();
+  //   console.log(result);
+  //   return result;
+  // };
 
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log(result);
-    return result;
-  };
-
-  const nodes = pullTransactions();
+  // const nodes = pullTransactions();
 
   return (
     <>
@@ -53,9 +53,9 @@ function App() {
           <button type="submit">Submit</button>
         </form>
       </div>
-      <Component nodes={nodes} />
     </>
   )
 }
 
+// <Component nodes={nodes} />
 export default App
