@@ -2,7 +2,9 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import './App.css'
-import Component from './TransactionTable.tsx'
+import { TransactionTable } from './TransactionTable.tsx'
+import { type Transaction } from './TransactionTable.tsx'
+import { useEffect, useState } from 'react'
 
 function App() {
 
@@ -24,7 +26,25 @@ function App() {
   //   }
   // }
 
-  // const pullTransactions = async function() {
+  const [transactionList, setTransactionList] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    async function pullTransactions() {
+      const response = await fetch("api/getTransactions");
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Response: " + result);
+      setTransactionList(result);
+      console.log(transactionList);
+    }
+    pullTransactions();
+  });
+
+
+  // async function pullTransactions() {
   //   const response = await fetch("/api/getTransactions");
   //
   //   if (!response.ok) {
@@ -32,11 +52,12 @@ function App() {
   //   }
   //
   //   const result = await response.json();
-  //   console.log(result);
-  //   return result;
+  //   console.log("Response: " + result);
+  //   setTransactionList(result);
+  //   console.log(transactionList);
   // };
-
-  // const nodes = pullTransactions();
+  //
+  // pullTransactions();
 
   return (
     <>
@@ -53,9 +74,9 @@ function App() {
           <button type="submit">Submit</button>
         </form>
       </div>
+      <TransactionTable nodes={transactionList} />
     </>
   )
 }
 
-// <Component nodes={nodes} />
 export default App

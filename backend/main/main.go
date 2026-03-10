@@ -21,12 +21,14 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("./frontend/dist/")))
 
+	// Test API
 	helloHandler := func(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("hello handler")
 	}
 
 	mux.HandleFunc("/hello", helloHandler)
 
+	// API for form submission of a transaction
 	manualTransactionInput := func(w http.ResponseWriter, req *http.Request) {
 		// Parse/Handle input
 		name := req.FormValue("TransactionName")
@@ -62,8 +64,9 @@ func main() {
 	}
 	mux.HandleFunc("/addTransaction", manualTransactionInput)
 
+	// API for  retrieving all transactions
 	getTransactions := func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, "[{\"name\": \"Cody\"}, {\"name\": \"Kenzie\"}]")
+		io.WriteString(w, `[{"name": "Cody","amount": 15,"category": "test","date": "01-14-2026"}, {"name": "Kenzie","amount": 38,"category": "test","date": "01-26-2026"}]`)
 	}
 	mux.HandleFunc("/getTransactions", getTransactions)
 

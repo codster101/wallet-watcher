@@ -41,7 +41,7 @@
   color: #888;
 }
 
-div {
+.grey-section {
   background-color: lightgrey;
   border-radius: 10px;
 }
