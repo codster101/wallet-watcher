@@ -38,10 +38,10 @@ function App() {
       const result = await response.json();
       console.log("Response: " + result);
       setTransactionList(result);
-      console.log(transactionList);
+      // console.log(transactionList);
     }
     pullTransactions();
-  });
+  }, []);
 
 
   // async function pullTransactions() {

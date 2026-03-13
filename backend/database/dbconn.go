@@ -45,3 +45,31 @@ func AddTransaction(transaction user.Transaction) {
 		log.Fatal(err)
 	}
 }
+
+func GetAllTransactions() []user.Transaction {
+	results, err := db.Query("SELECT * FROM Transactions")
+	if err != nil {
+		fmt.Println("Error Getting All Transactions")
+		log.Fatal(err)
+	}
+	defer results.Close()
+
+	var transactions []user.Transaction
+	for results.Next() {
+		// Create Transaction
+		t := user.Transaction{}
+		if err := results.Scan(&t.Name, &t.Amount, &t.Category, &t.Date, &t.Id); err != nil {
+			fmt.Println("Error parsing row")
+			log.Fatal(err)
+		}
+
+		// Add transaction to output list
+		transactions = append(transactions, t)
+	}
+	if err := results.Err(); err != nil {
+		fmt.Println("Error traversing queried rows")
+		log.Fatal(err)
+	}
+
+	return transactions
+}
