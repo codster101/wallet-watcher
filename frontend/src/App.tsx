@@ -2,79 +2,86 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import './App.css'
+import { useEffect, useState } from 'react'
 import { TransactionTable } from './TransactionTable.tsx'
 import { type Transaction } from './TransactionTable.tsx'
-import { useEffect, useState } from 'react'
+import { Graph } from './Graph.tsx'
+import type { Event } from '@table-library/react-table-library/types/table'
+
 
 function App() {
-
-  // async function TestAPI() {
-  //   // const url = "http://localhost:8080/hello";
-  //   const url = "/hello";
-  //   try {
-  //     const response = await fetch(url, { mode: 'no-cors' });
-  //     if (!response.ok) {
-  //       throw new Error(`Response status: ${response.status}`);
-  //     }
-  //
-  //     const result = await response.json();
-  //     console.log("Success");
-  //     console.log(result);
-  //
-  //   } catch (error) {
-  //     console.log("Error!!");
-  //   }
-  // }
-
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
 
-  useEffect(() => {
-    async function pullTransactions() {
-      const response = await fetch("api/getTransactions");
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log("Response: " + result);
-      setTransactionList(result);
-      // console.log(transactionList);
+  async function pullTransactions() {
+    const response = await fetch("api/getTransactions");
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
     }
+
+    const result = await response.json();
+    console.log("Response: " + result);
+    setTransactionList(result)
+  }
+
+  useEffect(() => {
     pullTransactions();
-  }, []);
+  }, [])
 
+  // Sends form data to backend
+  async function sendData(e: Event) {
+    e.preventDefault(); // Prevents page from reloading
 
-  // async function pullTransactions() {
-  //   const response = await fetch("/api/getTransactions");
-  //
-  //   if (!response.ok) {
-  //     throw new Error(`Response status: ${response.status}`);
-  //   }
-  //
-  //   const result = await response.json();
-  //   console.log("Response: " + result);
-  //   setTransactionList(result);
-  //   console.log(transactionList);
-  // };
-  //
-  // pullTransactions();
+    // Creates new form data object
+    const form = e.target;
+    let formData: FormData;
+
+    // If the target was a form then send its data to the backend and pull the updated transactions
+    if (form instanceof HTMLFormElement) {
+      formData = new FormData(form);
+
+      try {
+        await fetch("/api/addTransaction", { method: "POST", body: formData, });
+
+        pullTransactions();
+
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
 
   return (
     <>
-      <div>
-        <form action="/api/addTransaction" method="post">
-          <p>Name: </p>
-          <input name="TransactionName" type="text" />
-          <p>Amount: </p>
-          <input name="TransactionAmount" type="number" />
-          <p>Category: </p>
-          <input name="TransactionCategory" type="text" />
-          <p>Date: </p>
-          <input name="TransactionDate" type="date" />
+      <div id='top' className='horz'>
+        <form className='tile' onSubmit={sendData}>
+          <div className="inputField">
+            <p>Name: </p>
+            <input name="TransactionName" type="text" />
+          </div>
+          <div className="inputField">
+            <p>Amount: </p>
+            <input name="TransactionAmount" type="number" />
+          </div>
+          <div className="inputField">
+            <p>Category: </p>
+            <input name="TransactionCategory" type="text" />
+          </div>
+          <div className="inputField">
+            <p>Date: </p>
+            <input name="TransactionDate" type="date" />
+          </div>
           <button type="submit">Submit</button>
         </form>
+        <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
+          <label>Input File</label>
+          <input name="TransactionFile" type='file' />
+          <button type="submit">Submit</button>
+        </form>
+        <Graph />
       </div>
-      <TransactionTable nodes={transactionList} />
+      <div className='tile'>
+        <TransactionTable nodes={transactionList} />
+      </div>
     </>
   )
 }

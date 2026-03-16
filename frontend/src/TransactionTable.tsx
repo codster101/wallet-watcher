@@ -1,6 +1,7 @@
 import { CompactTable } from '@table-library/react-table-library/compact';
 
 export type Transaction = {
+	id: number;
 	name: string;
 	amount: number;
 	category: string;
@@ -29,7 +30,7 @@ const COLUMNS = [
 	{ label: 'Date', renderCell: (item: Transaction) => item.date },
 ];
 
-export const TransactionTable = ({ nodes }: { nodes: Transaction[] }) => {
+export function TransactionTable({ nodes }: { nodes: Transaction[] }) {
 	const data = { nodes };
 
 	return <CompactTable columns={COLUMNS} data={data} />;

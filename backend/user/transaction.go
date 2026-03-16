@@ -10,7 +10,7 @@ type Transaction struct {
 	Amount   float64
 	Category string
 	Date     string
-	Id       int64
+	Id       int
 }
 
 func PrintTransaction(t Transaction) {
@@ -26,5 +26,5 @@ func TransactionToJson(t Transaction) string {
 	// 	log.Fatal(err)
 	// }
 
-	return `{"name": "` + t.Name + `", "amount": ` + strconv.FormatFloat(t.Amount, 'f', 2, 64) + `, "category": "` + t.Category + `", "date": "` + t.Date + `"}`
+	return `{"id": "` + strconv.Itoa(t.Id) + `", "name": "` + t.Name + `", "amount": ` + strconv.FormatFloat(t.Amount, 'f', 2, 64) + `, "category": "` + t.Category + `", "date": "` + t.Date + `"}`
 }

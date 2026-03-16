@@ -46,6 +46,12 @@ func AddTransaction(transaction user.Transaction) {
 	}
 }
 
+func AddTransactions(transactions []user.Transaction) {
+	for _, t := range transactions {
+		AddTransaction(t)
+	}
+}
+
 func GetAllTransactions() []user.Transaction {
 	results, err := db.Query("SELECT * FROM Transactions")
 	if err != nil {
