@@ -52,35 +52,47 @@ function App() {
 
   return (
     <>
-      <div id='top' className='horz'>
-        <form className='tile' onSubmit={sendData}>
-          <div className="inputField">
-            <p>Name: </p>
-            <input name="TransactionName" type="text" />
-          </div>
-          <div className="inputField">
-            <p>Amount: </p>
-            <input name="TransactionAmount" type="number" />
-          </div>
-          <div className="inputField">
-            <p>Category: </p>
-            <input name="TransactionCategory" type="text" />
-          </div>
-          <div className="inputField">
-            <p>Date: </p>
-            <input name="TransactionDate" type="date" />
-          </div>
-          <button type="submit">Submit</button>
-        </form>
-        <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
-          <label>Input File</label>
-          <input name="TransactionFile" type='file' />
-          <button type="submit">Submit</button>
-        </form>
-        <Graph />
-      </div>
-      <div className='tile'>
-        <TransactionTable nodes={transactionList} />
+      <h1 id='title'> WALLET<span>WATCHER</span></h1>
+      <div id='dashboard'>
+        <div>
+          <form className='tile' onSubmit={sendData}>
+            <div className="inputField">
+              <p>Name: </p>
+              <input name="TransactionName" type="text" />
+            </div>
+
+            <div className="inputField">
+              <p>Amount: </p>
+              <input name="TransactionAmount" type="number" />
+            </div>
+
+            <div className="inputField">
+              <p>Category: </p>
+              <input name="TransactionCategory" type="text" />
+            </div>
+
+            <div className="inputField">
+              <p>Date: </p>
+              <input name="TransactionDate" type="date" />
+            </div>
+
+            <button type="submit">Submit</button>
+          </form>
+
+          <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
+            <label>Input File</label>
+            <input name="TransactionFile" type='file' />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+
+        <div id='graph-div' className='tile tile-5'>
+          <Graph />
+        </div>
+
+        <div className='tile tile-3'>
+          <TransactionTable nodes={transactionList} />
+        </div>
       </div>
     </>
   )

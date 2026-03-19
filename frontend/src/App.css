@@ -1,6 +1,39 @@
-.horz {
-  display: flex;
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+#graph-div {
+  flex: 1;
 }
+
+.tile-row {
+  width: 100vw;
+  margin: 10px;
+}
+#dashboard {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+
+  margin: 10px;
+}
+
+#title {
+  margin-left: 2rem;
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+  font-size: 5.5rem;
+  letter-spacing: 0.2rem;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+#title span {
+  color: lightblue;
+}
+
+.tile-2 { grid-column: span 2; }
+.tile-3 { grid-column: span 3; }
+.tile-4 { grid-column: span 4; }
+.tile-5 { grid-column: span 5; }
+.tile-6 { grid-column: span 6; }
 
 .tile {
   border: gray;
@@ -11,7 +44,6 @@
   padding: 10px;
   margin: 5px;
   width: fit-content;
-  height: fit-content;
 }
 
 .inputField {
