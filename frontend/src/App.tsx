@@ -4,23 +4,34 @@
 import './App.css'
 import { useEffect, useState } from 'react'
 import { TransactionTable } from './TransactionTable.tsx'
-import { type Transaction } from './TransactionTable.tsx'
+import { type Transaction } from './Transaction.tsx'
 import { Graph } from './Graph.tsx'
 import type { Event } from '@table-library/react-table-library/types/table'
 
 
 function App() {
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
+  const [monthlyTotals, setSpentLine] = useState<number[]>([]);
 
   async function pullTransactions() {
-    const response = await fetch("api/getTransactions");
+    let response = await fetch("api/getTransactions");
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
 
-    const result = await response.json();
-    console.log("Response: " + result);
+    let result = await response.json();
+    console.log("Response: " + JSON.stringify(result));
     setTransactionList(result)
+
+    response = await fetch("api/getMonthlyTotals");
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    result = await response.json();
+    console.log("Response: " + JSON.stringify(result));
+    setSpentLine(result)
+
   }
 
   useEffect(() => {
@@ -54,44 +65,50 @@ function App() {
     <>
       <h1 id='title'> WALLET<span>WATCHER</span></h1>
       <div id='dashboard'>
-        <div>
-          <form className='tile' onSubmit={sendData}>
-            <div className="inputField">
-              <p>Name: </p>
-              <input name="TransactionName" type="text" />
-            </div>
+        <div id='left-panel'>
+          <div>
+            <form className='tile' onSubmit={sendData}>
+              <div className="inputField">
+                <p>Name: </p>
+                <input name="TransactionName" type="text" />
+              </div>
 
-            <div className="inputField">
-              <p>Amount: </p>
-              <input name="TransactionAmount" type="number" />
-            </div>
+              <div className="inputField">
+                <p>Amount: </p>
+                <input name="TransactionAmount" type="number" />
+              </div>
 
-            <div className="inputField">
-              <p>Category: </p>
-              <input name="TransactionCategory" type="text" />
-            </div>
+              <div className="inputField">
+                <p>Category: </p>
+                <input name="TransactionCategory" type="text" />
+              </div>
 
-            <div className="inputField">
-              <p>Date: </p>
-              <input name="TransactionDate" type="date" />
-            </div>
+              <div className="inputField">
+                <p>Date: </p>
+                <input name="TransactionDate" type="date" />
+              </div>
 
-            <button type="submit">Submit</button>
-          </form>
+              <button type="submit">Submit</button>
+            </form>
 
-          <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
-            <label>Input File</label>
-            <input name="TransactionFile" type='file' />
-            <button type="submit">Submit</button>
-          </form>
+            <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
+              <label>Input File</label>
+              <input name="TransactionFile" type='file' />
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+
+          <div id='graph-div' className='tile tile-2'>
+            <Graph monthlyTotals={monthlyTotals} />
+          </div>
+
+          <div className='tile tile-3'>
+            <TransactionTable nodes={transactionList} />
+          </div>
         </div>
-
-        <div id='graph-div' className='tile tile-5'>
-          <Graph />
-        </div>
-
-        <div className='tile tile-3'>
-          <TransactionTable nodes={transactionList} />
+        <div id='right-panel'>
+          <div className='tile tile-1'>
+          </div>
         </div>
       </div>
     </>

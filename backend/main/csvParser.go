@@ -42,7 +42,7 @@ func ParseCSV(file multipart.File) []user.Transaction {
 		}
 
 		// Assign the proper fields to a new Transaction
-		t := user.Transaction{Name: fields[2], Amount: float64(i), Category: fields[3], Date: date.Format(time.DateOnly)}
+		t := user.NewTransaction(fields[2], float64(i), fields[3], date)
 
 		// user.PrintTransaction(t)
 

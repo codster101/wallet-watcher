@@ -1,28 +1,6 @@
 import { CompactTable } from '@table-library/react-table-library/compact';
+import { type Transaction } from './Transaction.tsx'
 
-export type Transaction = {
-	id: number;
-	name: string;
-	amount: number;
-	category: string;
-	date: string;
-}
-
-// const nodes = [
-// 	{
-// 		name: 'Cody',
-// 	},
-// 	{
-// 		name: 'Kenzie',
-// 	},
-// 	{
-// 		name: 'Waffle',
-// 	},
-// 	{
-// 		name: 'Wally',
-// 	},
-// ];
-//
 const COLUMNS = [
 	{ label: 'Names', renderCell: (item: Transaction) => item.name },
 	{ label: 'Amount', renderCell: (item: Transaction) => item.amount },

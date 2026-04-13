@@ -1,23 +1,56 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type Transaction struct {
-	Name     string
-	Amount   float64
-	Category string
-	Date     string
-	Id       int
+	name     string
+	amount   float64
+	category string
+	date     time.Time
+	id       int
 }
 
-func PrintTransaction(t Transaction) {
-	fmt.Printf("Name:%s\nAmount: %f\nCategory: %s\nDate:%s\n", t.Name, t.Amount, t.Category, t.Date)
+// Constructors
+func NewTransaction(name string, amount float64, category string, date time.Time) Transaction {
+	return Transaction{name: name, amount: amount, category: category, date: date}
 }
 
-func TransactionToJson(t Transaction) string {
+func NewTransactionWithId(name string, amount float64, category string, date time.Time, id int) Transaction {
+	return Transaction{name: name, amount: amount, category: category, date: date, id: id}
+}
+
+// Getters
+func (t Transaction) Name() string {
+	return t.name
+}
+
+func (t Transaction) Amount() float64 {
+	return t.amount
+}
+
+func (t Transaction) Category() string {
+	return t.category
+}
+
+func (t Transaction) Date() string {
+	return t.date.Format(time.DateOnly)
+}
+
+func (t Transaction) Id() int {
+	return t.id
+}
+
+// Transaction methods
+func (t Transaction) PrintTransaction() {
+	fmt.Printf("Name:%s\nAmount: %f\nCategory: %s\nDate:%s\n", t.name, t.amount, t.category, t.Date())
+}
+
+func (t Transaction) TransactionToJson() string {
 
 	// const layout = "2026-Jan-01"
 	// date, err := time.Parse(time.DateOnly, t.Date)
@@ -26,5 +59,29 @@ func TransactionToJson(t Transaction) string {
 	// 	log.Fatal(err)
 	// }
 
-	return `{"id": "` + strconv.Itoa(t.Id) + `", "name": "` + t.Name + `", "amount": ` + strconv.FormatFloat(t.Amount, 'f', 2, 64) + `, "category": "` + t.Category + `", "date": "` + t.Date + `"}`
+	return `{
+		"id": "` + strconv.Itoa(t.id) + `", 
+		"name": "` + t.name + `", 
+		"amount": ` + strconv.FormatFloat(t.amount, 'f', 2, 64) + `, 
+		"category": "` + t.category + `", 
+		"date": "` + t.Date() + `"}`
+}
+
+func (t Transaction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name     string  `json:"name"`
+		Amount   float64 `json:"amount"`
+		Category string  `json:"category"`
+		Date     string  `json:"date"`
+	}{
+		Name:     t.Name(),
+		Amount:   t.Amount(),
+		Category: t.Category(),
+		Date:     t.Date(),
+	})
+}
+
+// Returns the month as a number 1-12
+func (t Transaction) GetMonthInt() int {
+	return int(t.date.Month())
 }

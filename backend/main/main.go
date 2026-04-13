@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/codster101/wallet-watcher/database"
 	"github.com/codster101/wallet-watcher/user"
@@ -24,7 +26,7 @@ func main() {
 		name := req.FormValue("TransactionName")
 		amountStr := req.FormValue("TransactionAmount")
 		category := req.FormValue("TransactionCategory")
-		date := req.FormValue("TransactionDate")
+		dateStr := req.FormValue("TransactionDate")
 
 		// Display before and after type formatting
 		// fmt.Printf("%s , %s, %s, %s\n", name, amountStr, category, date)
@@ -36,11 +38,18 @@ func main() {
 			log.Fatal(err)
 		}
 
+		//Format date string
+		date, err := time.Parse(time.DateOnly, dateStr)
+		if err != nil {
+			fmt.Println("Error: unrecognized date format. Expected yyyy-mm-dd")
+			log.Fatal(err)
+		}
+
 		// Display before and after type formatting
 		// fmt.Printf("%s , %2f, %s, %s\n", name, amount, category, date)
 
 		// Create Transaction
-		newTransaction := user.Transaction{Name: name, Amount: amount, Category: category, Date: date}
+		newTransaction := user.NewTransaction(name, amount, category, date)
 
 		// Add input to db
 		dbconn.AddTransaction(newTransaction)
@@ -53,7 +62,7 @@ func main() {
 		transactions := dbconn.GetAllTransactions()
 		jsonTransactions := "["
 		for _, t := range transactions {
-			jsonTransactions += user.TransactionToJson(t) + ", "
+			jsonTransactions += t.TransactionToJson() + ", "
 		}
 		jsonTransactions = jsonTransactions[:len(jsonTransactions)-2] + "]"
 		// fmt.Println(jsonTransactions)
@@ -73,6 +82,65 @@ func main() {
 		dbconn.AddTransactions(transactions)
 	}
 	mux.HandleFunc("/submitFile", submitFile)
+
+	// API for getting monthly totals
+	// This will query the DB for all transactions then determine the total spent for each month
+	// NTD - The monthly totals are for the last 12 months including the current month
+	// NTD - Months prior will not be included in the returned totals
+	// NTD - The response will contain a json list of the totals with exactly 12 floats
+	getMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
+		transactions := dbconn.GetAllTransactions()
+
+		monthTransactionTotals := [12]float64{} // array of months. Each index contains the total for that month
+		// Go through each transaction and add it to the total for the month
+		for _, t := range transactions {
+			monthTransactionTotals[t.GetMonthInt()-1] += t.Amount()
+		}
+
+		jsonMonthlyTotals := "["
+		for _, a := range monthTransactionTotals {
+			jsonMonthlyTotals += strconv.FormatFloat(a, 'f', 2, 64) + ", "
+		}
+		jsonMonthlyTotals = jsonMonthlyTotals[:len(jsonMonthlyTotals)-2] + "]"
+		// fmt.Println(jsonMonthlyTotals)
+		io.WriteString(w, jsonMonthlyTotals)
+	}
+	mux.HandleFunc("/getMonthlyTotals", getMonthlyTotals)
+
+	// API for getting category totals for the month
+	// This will query the DB for all transactions for the current month (DEFAULT) then total each category
+	// NTD - Passing in an integer 1-12 will return category totals for the corresponding month
+	getCategoryTotals := func(w http.ResponseWriter, req *http.Request) {
+		// Get all categories (name, budget)
+		categories := dbconn.GetAllCategories()
+
+		// Put all category objects into a map for easy reference
+		categoryRef := map[string]int{}
+		for i, c := range categories {
+			categoryRef[c.Name()] = i
+		}
+
+		// Get all transactions for the month
+		transactions := dbconn.GetTransactionsInMonth(time.Now().Month())
+
+		// For each transaction add its total to the category total
+		for _, t := range transactions {
+			if index, ok := categoryRef[t.Category()]; !ok {
+				fmt.Println("Category of transaction not found in Category table")
+				log.Fatal(t.Category())
+			} else {
+				categories[index].AddToSpent(t.Amount())
+			}
+		}
+
+		// Put together json of categories to sent to frontend
+		// categoryJSON := []user.Category{}
+		// for _, v := range categoryRef {
+		// append(categoryJSON, v)
+		// }
+		json.NewEncoder(w).Encode(categories)
+	}
+	mux.HandleFunc("/getCategoryTotals", getCategoryTotals)
 
 	fmt.Println(http.ListenAndServe(":8080", mux))
 }

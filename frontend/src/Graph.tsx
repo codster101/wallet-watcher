@@ -10,6 +10,7 @@ import {
 	Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { type Transaction } from './Transaction.tsx'
 
 ChartJS.register(
 	CategoryScale,
@@ -20,6 +21,14 @@ ChartJS.register(
 	Tooltip,
 	Legend
 );
+
+type Line = {
+	label: string,
+	data: number[],
+	borderColor: string,
+	backgroundColor: string,
+}
+export type Lines = Line[];
 
 export const options = {
 	responsive: true,
@@ -36,25 +45,20 @@ export const options = {
 
 const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-export const data = {
-	labels,
-	datasets: [
-		{
-			label: 'Dataset 1',
-			data: labels.map(() => Math.random()),
-			borderColor: 'rgb(255, 99, 132)',
-			backgroundColor: 'rgba(255, 99, 132, 0.5)',
-		},
-		{
-			label: 'Dataset 2',
-			data: labels.map(() => Math.random()),
-			borderColor: 'rgb(53, 162, 235)',
-			backgroundColor: 'rgba(53, 162, 235, 0.5)',
-		},
-	],
-};
+export function Graph({ monthlyTotals }: { monthlyTotals: number[] }) {
 
-export function Graph() {
+	const data = {
+		labels,
+		datasets: [
+			{
+				label: 'Transactions',
+				data: monthlyTotals,
+				borderColor: 'rgb(255, 99, 132)',
+				backgroundColor: 'rgb(255, 99, 132)',
+			},
+		]
+	}
+
 	return <Line options={options} data={data} />
 };
 
