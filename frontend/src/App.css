@@ -50,10 +50,6 @@
 
 #right-panel {
   grid-column: span 3;
-
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(200px, auto);
 }
 
 #left-panel {
@@ -61,7 +57,12 @@
 
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(200px, auto);
+}
+
+#category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  align-content: start;
 }
 
 .inputField {

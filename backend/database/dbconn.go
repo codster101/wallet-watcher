@@ -116,10 +116,10 @@ func GetAllTransactions() []user.Transaction {
 	return transactions
 }
 
-func GetTransactionsInMonth(month time.Month) []user.Transaction {
-	results, err := db.Query("SELECT * FROM Transactions Where MONTH(Date) = ?", int(month))
+func GetTransactionsInMonth(month int) []user.Transaction {
+	results, err := db.Query("SELECT * FROM Transactions Where MONTH(Date) = ?", month)
 	if err != nil {
-		fmt.Println("Error Getting Transactions in month " + month.String())
+		fmt.Println("Error Getting Transactions in month " + time.Month(month).String())
 		log.Fatal(err)
 	}
 	defer results.Close()
@@ -187,4 +187,42 @@ func GetAllCategories() []*user.Category {
 	}
 
 	return categories
+}
+
+func UpdateTransaction(value string, id int, property string) {
+	query := "UPDATE Transactions SET " + property + "= ? WHERE Id = ?"
+	result, err := db.Exec(query, value, id)
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
+		fmt.Printf("Query: UPDATE Transactions SET Name = %s WHERE Id = %d\n", value, id)
+	}
+}
+
+func UpdateCategory(name string, amount float64) {
+	query := "UPDATE Categories SET Amount= ? WHERE Name= ?"
+	result, err := db.Exec(query, amount, name)
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
+		fmt.Printf("UPDATE Categories SET Amount= %f WHERE Name= %s\n", amount, name)
+	}
 }

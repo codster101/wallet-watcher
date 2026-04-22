@@ -34,9 +34,11 @@ func (c Category) MarshalJSON() ([]byte, error) {
 		Name   string  `json:"name"`
 		Budget float64 `json:"budget"`
 		Spent  float64 `json:"spent"`
+		Id     int     `json:"id"`
 	}{
 		Name:   c.Name(),
 		Budget: c.Budget(),
 		Spent:  c.Spent(),
+		Id:     c.id,
 	})
 }

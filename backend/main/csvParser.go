@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,7 +27,7 @@ func ParseCSV(file multipart.File) []user.Transaction {
 	lines := strings.Split(fileString, "\n")
 	lines = lines[1:]
 
-	for i, line := range lines {
+	for _, line := range lines {
 		// For each row split into fields
 		fields := strings.Split(line, ",")
 		if len(fields) < 2 {
@@ -42,7 +43,12 @@ func ParseCSV(file multipart.File) []user.Transaction {
 		}
 
 		// Assign the proper fields to a new Transaction
-		t := user.NewTransaction(fields[2], float64(i), fields[3], date)
+		amt, err := strconv.ParseFloat(fields[5], 64)
+		if err != nil {
+			fmt.Println("Error: cannot parse amount from file to float")
+			log.Fatal(err)
+		}
+		t := user.NewTransaction(fields[2], -amt, fields[3], date)
 
 		// user.PrintTransaction(t)
 

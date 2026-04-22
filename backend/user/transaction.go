@@ -52,13 +52,6 @@ func (t Transaction) PrintTransaction() {
 
 func (t Transaction) TransactionToJson() string {
 
-	// const layout = "2026-Jan-01"
-	// date, err := time.Parse(time.DateOnly, t.Date)
-	// if err != nil {
-	// 	fmt.Println("Error parsing the input value")
-	// 	log.Fatal(err)
-	// }
-
 	return `{
 		"id": "` + strconv.Itoa(t.id) + `", 
 		"name": "` + t.name + `", 
@@ -69,11 +62,13 @@ func (t Transaction) TransactionToJson() string {
 
 func (t Transaction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
+		Id       int     `json:"id"`
 		Name     string  `json:"name"`
 		Amount   float64 `json:"amount"`
 		Category string  `json:"category"`
 		Date     string  `json:"date"`
 	}{
+		Id:       t.Id(),
 		Name:     t.Name(),
 		Amount:   t.Amount(),
 		Category: t.Category(),

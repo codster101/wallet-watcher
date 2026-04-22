@@ -6,12 +6,16 @@ import { useEffect, useState } from 'react'
 import { TransactionTable } from './TransactionTable.tsx'
 import { type Transaction } from './Transaction.tsx'
 import { Graph } from './Graph.tsx'
-import type { Event } from '@table-library/react-table-library/types/table'
+import { CategoryDisplay } from './CategoryDisplay.tsx'
+import type { Event, Identifier } from '@table-library/react-table-library/types/table'
+// import type { Category } from './Category.tsx'
 
 
 function App() {
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
   const [monthlyTotals, setSpentLine] = useState<number[]>([]);
+  // const [categoryList, setCategoryList] = useState<Category[]>([]);
+  // const [month, setMonth] = useState((new Date()).getMonth());
 
   async function pullTransactions() {
     let response = await fetch("api/getTransactions");
@@ -20,7 +24,7 @@ function App() {
     }
 
     let result = await response.json();
-    console.log("Response: " + JSON.stringify(result));
+    // console.log("Response: " + JSON.stringify(result));
     setTransactionList(result)
 
     response = await fetch("api/getMonthlyTotals");
@@ -29,10 +33,49 @@ function App() {
     }
 
     result = await response.json();
-    console.log("Response: " + JSON.stringify(result));
+    // console.log("Response: " + JSON.stringify(result));
     setSpentLine(result)
 
+    // setCategoryList(await getAllCategories(month));
   }
+
+  async function updateTransaction(value: string, id: Identifier, property: string) {
+    let response = await fetch("api/updateTransaction", {
+      method: "POST",
+      body: JSON.stringify({ value: value, id: id, property: property })
+    });
+    if (!response.ok) {
+      throw new Error('Response status: ${response.status}');
+    }
+
+    pullTransactions();
+  }
+
+  // async function getAllCategories(month: number) {
+  //   const response = await fetch("api/getCategoryTotals", {
+  //     method: "POST",
+  //     body: JSON.stringify({ month: month })
+  //   });
+  //   if (!response.ok) {
+  //     throw new Error(`Response status: ${response.status}`);
+  //   }
+  //
+  //   const result = await response.json();
+  //   // console.log("Response: " + JSON.stringify(result));
+  //   return result;
+  // }
+  //
+  // async function updateCategory(name: string, amount: number) {
+  //   let response = await fetch("api/updateCategory", {
+  //     method: "POST",
+  //     body: JSON.stringify({ name: name, amount: amount })
+  //   });
+  //   if (!response.ok) {
+  //     throw new Error('Response status: ${response.status}');
+  //   }
+  //
+  //   pullTransactions();
+  // }
 
   useEffect(() => {
     pullTransactions();
@@ -103,13 +146,10 @@ function App() {
           </div>
 
           <div className='tile tile-3'>
-            <TransactionTable nodes={transactionList} />
+            <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} />
           </div>
         </div>
-        <div id='right-panel'>
-          <div className='tile tile-1'>
-          </div>
-        </div>
+        <CategoryDisplay />
       </div>
     </>
   )

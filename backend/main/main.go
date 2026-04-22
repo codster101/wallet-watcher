@@ -60,13 +60,8 @@ func main() {
 	getTransactions := func(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("Retrieving Transactions")
 		transactions := dbconn.GetAllTransactions()
-		jsonTransactions := "["
-		for _, t := range transactions {
-			jsonTransactions += t.TransactionToJson() + ", "
-		}
-		jsonTransactions = jsonTransactions[:len(jsonTransactions)-2] + "]"
-		// fmt.Println(jsonTransactions)
-		io.WriteString(w, jsonTransactions)
+
+		json.NewEncoder(w).Encode(transactions)
 	}
 	mux.HandleFunc("/getTransactions", getTransactions)
 
@@ -111,6 +106,23 @@ func main() {
 	// This will query the DB for all transactions for the current month (DEFAULT) then total each category
 	// NTD - Passing in an integer 1-12 will return category totals for the corresponding month
 	getCategoryTotals := func(w http.ResponseWriter, req *http.Request) {
+
+		// Create json type
+		type requestJson struct {
+			Month int `json:"month"`
+		}
+
+		// Parse Input
+		var body requestJson
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		month := body.Month
+
 		// Get all categories (name, budget)
 		categories := dbconn.GetAllCategories()
 
@@ -121,7 +133,7 @@ func main() {
 		}
 
 		// Get all transactions for the month
-		transactions := dbconn.GetTransactionsInMonth(time.Now().Month())
+		transactions := dbconn.GetTransactionsInMonth(month)
 
 		// For each transaction add its total to the category total
 		for _, t := range transactions {
@@ -133,14 +145,67 @@ func main() {
 			}
 		}
 
-		// Put together json of categories to sent to frontend
-		// categoryJSON := []user.Category{}
-		// for _, v := range categoryRef {
-		// append(categoryJSON, v)
-		// }
 		json.NewEncoder(w).Encode(categories)
 	}
 	mux.HandleFunc("/getCategoryTotals", getCategoryTotals)
+
+	// API for submitting transaction files
+	updateTransaction := func(w http.ResponseWriter, req *http.Request) {
+		fmt.Println("Update Transaction")
+
+		// Create json type
+		type UpdateTransactionRequest struct {
+			Value    string `json:"value"`
+			Id       int    `json:"id"`
+			Property string `json:"property"`
+		}
+
+		// Parse Input
+		var body UpdateTransactionRequest
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		value := body.Value
+		id := body.Id
+		property := body.Property
+
+		// Call DB to update the transaction
+		dbconn.UpdateTransaction(value, id, property)
+
+	}
+	mux.HandleFunc("/updateTransaction", updateTransaction)
+
+	// API for submitting transaction files
+	updateCategory := func(w http.ResponseWriter, req *http.Request) {
+		fmt.Println("Update Transaction")
+
+		// Create json type
+		type UpdateCategoryRequest struct {
+			Name   string  `json:"name"`
+			Amount float64 `json:"amount"`
+		}
+
+		// Parse Input
+		var body UpdateCategoryRequest
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		name := body.Name
+		amount := body.Amount
+
+		// Call DB to update the transaction
+		dbconn.UpdateCategory(name, amount)
+
+	}
+	mux.HandleFunc("/updateCategory", updateCategory)
 
 	fmt.Println(http.ListenAndServe(":8080", mux))
 }
