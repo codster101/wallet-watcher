@@ -45,16 +45,32 @@ export const options = {
 
 const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-export function Graph({ monthlyTotals }: { monthlyTotals: number[] }) {
+export function Graph({ allSpentMonthlyTotals, incomeMonthlyTotals, budgetTotal }: { allSpentMonthlyTotals: number[], incomeMonthlyTotals: number[], budgetTotal: number }) {
+
+	function GetMonthlyBudgetTotal() {
+		return (new Array(12)).fill(budgetTotal);
+	}
 
 	const data = {
 		labels,
 		datasets: [
 			{
-				label: 'Transactions',
-				data: monthlyTotals,
+				label: 'Spent',
+				data: allSpentMonthlyTotals,
 				borderColor: 'rgb(255, 99, 132)',
 				backgroundColor: 'rgb(255, 99, 132)',
+			},
+			{
+				label: 'Income',
+				data: incomeMonthlyTotals,
+				borderColor: 'rgb(99, 255, 132)',
+				backgroundColor: 'rgb(99, 255, 132)',
+			},
+			{
+				label: 'Budget',
+				data: GetMonthlyBudgetTotal(),
+				borderColor: 'rgb(132, 99, 255)',
+				backgroundColor: 'rgb(132, 99, 255)',
 			},
 		]
 	}

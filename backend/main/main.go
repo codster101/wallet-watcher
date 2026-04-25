@@ -83,8 +83,34 @@ func main() {
 	// NTD - The monthly totals are for the last 12 months including the current month
 	// NTD - Months prior will not be included in the returned totals
 	// NTD - The response will contain a json list of the totals with exactly 12 floats
-	getMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
+	getAllSpentMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
 		transactions := dbconn.GetAllTransactions()
+
+		monthTransactionTotals := [12]float64{} // array of months. Each index contains the total for that month
+		// Go through each transaction and add it to the total for the month
+		for _, t := range transactions {
+			if t.Category() != "Income" {
+				monthTransactionTotals[t.GetMonthInt()-1] += t.Amount()
+			}
+		}
+
+		jsonMonthlyTotals := "["
+		for _, a := range monthTransactionTotals {
+			jsonMonthlyTotals += strconv.FormatFloat(a, 'f', 2, 64) + ", "
+		}
+		jsonMonthlyTotals = jsonMonthlyTotals[:len(jsonMonthlyTotals)-2] + "]"
+		// fmt.Println(jsonMonthlyTotals)
+		io.WriteString(w, jsonMonthlyTotals)
+	}
+	mux.HandleFunc("/getAllSpentMonthlyTotals", getAllSpentMonthlyTotals)
+
+	// API for getting all monthly totals for transactions in the "Income Category"
+	// This will query the DB for all "Income" transactions then determine the total spent for each month
+	// NTD - The monthly totals are for the last 12 months including the current month
+	// NTD - Months prior will not be included in the returned totals
+	// NTD - The response will contain a json list of the totals with exactly 12 floats
+	getIncomeMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
+		transactions := dbconn.GetAllTransactionsInCategory("Income")
 
 		monthTransactionTotals := [12]float64{} // array of months. Each index contains the total for that month
 		// Go through each transaction and add it to the total for the month
@@ -100,7 +126,7 @@ func main() {
 		// fmt.Println(jsonMonthlyTotals)
 		io.WriteString(w, jsonMonthlyTotals)
 	}
-	mux.HandleFunc("/getMonthlyTotals", getMonthlyTotals)
+	mux.HandleFunc("/getIncomeMonthlyTotals", getIncomeMonthlyTotals)
 
 	// API for getting category totals for the month
 	// This will query the DB for all transactions for the current month (DEFAULT) then total each category

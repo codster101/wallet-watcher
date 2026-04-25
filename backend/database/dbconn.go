@@ -116,6 +116,48 @@ func GetAllTransactions() []user.Transaction {
 	return transactions
 }
 
+func GetAllTransactionsInCategory(category string) []user.Transaction {
+	results, err := db.Query("SELECT * FROM Transactions WHERE Category = ?", category)
+	if err != nil {
+		fmt.Println("Error Getting All Transactions")
+		log.Fatal(err)
+	}
+	defer results.Close()
+
+	var transactions []user.Transaction
+	for results.Next() {
+		// Create Transaction
+		var (
+			name     string
+			amount   float64
+			category string
+			dateStr  string
+			id       int
+		)
+
+		if err := results.Scan(&name, &amount, &category, &dateStr, &id); err != nil {
+			fmt.Println("Error parsing row")
+			log.Fatal(err)
+		}
+
+		//Format date string
+		date, err := time.Parse(time.DateOnly, dateStr)
+		if err != nil {
+			fmt.Println("Error: unrecognized date format. Expected yyyy-mm-dd")
+			log.Fatal(err)
+		}
+
+		// Add transaction to output list
+		transactions = append(transactions, user.NewTransactionWithId(name, amount, category, date, id))
+	}
+	if err := results.Err(); err != nil {
+		fmt.Println("Error traversing queried rows")
+		log.Fatal(err)
+	}
+
+	return transactions
+}
+
 func GetTransactionsInMonth(month int) []user.Transaction {
 	results, err := db.Query("SELECT * FROM Transactions Where MONTH(Date) = ?", month)
 	if err != nil {
