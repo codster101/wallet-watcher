@@ -77,6 +77,24 @@ export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: 
 		getCategories(month)
 	}, [month])
 
+	function getBorderColor(budget: number, spent: number) {
+		if (budget < spent) {
+			return "#EF4444";
+		} else if (budget > spent) {
+			return "#22C55E";
+		}
+		return "#E3E8F0";
+	}
+
+	function getBackgroundColor(budget: number, spent: number) {
+		if (budget < spent) {
+			return "#FEF2F2";
+		} else if (budget > spent) {
+			return "#ECFDF5";
+		}
+		return "#F9FAFB";
+	}
+
 	return (
 		<div id='right-panel'>
 			<select defaultValue={month} onChange={(event) => {
@@ -88,7 +106,11 @@ export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: 
 			</select>
 			<div id='category-grid'>
 				{categories.map((category) => (
-					<div key={category.id} className='tile'>
+					<div key={category.id} className='tile'
+						style={{
+							backgroundColor: getBackgroundColor(category.budget, category.spent),
+							borderColor: getBorderColor(category.budget, category.spent)
+						}}>
 						<p>{category.name}</p>
 						<BudgetLabel
 							name={category.name}

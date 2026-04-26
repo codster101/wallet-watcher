@@ -68,12 +68,13 @@ func main() {
 	// API for submitting transaction files
 	submitFile := func(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("File Submission")
-		file, _, err := req.FormFile("TransactionFile")
+		format := req.FormValue("format")
+		file, _, err := req.FormFile("file")
 		if err != nil {
 			fmt.Println("Error retrieving file from HTTP Request")
 			log.Fatal(err)
 		}
-		transactions := ParseCSV(file)
+		transactions := ParseCSV(format, file)
 		dbconn.AddTransactions(transactions)
 	}
 	mux.HandleFunc("/submitFile", submitFile)

@@ -44,13 +44,24 @@ function EditableCell({ type, value, id, property, handleUpdate }:
 	);
 }
 
+function DeleteCheckboxCell({ type, id, deleteSet }: { type: string, id: number, deleteSet: Set<Identifier> }) {
+
+	// Return in-edit element
+	return (
+		<input
+			type={type}
+			onChange={(event) => { event.target.checked ? deleteSet.add(id) : deleteSet.delete(id) }}
+		/>
+	);
+}
+
 interface Props {
 	nodes: Transaction[],
 	handleUpdate: (value: string, id: Identifier, property: string) => {}
 }
 
 export function TransactionTable({ nodes, handleUpdate }: Props) {
-	// const [data, updateTable] = useState({ nodes })
+	const deleteSet = new Set<Identifier>();
 
 	const theme = useTheme(getTheme());
 
@@ -69,6 +80,7 @@ export function TransactionTable({ nodes, handleUpdate }: Props) {
 				<>
 					<Header>
 						<HeaderRow>
+							<HeaderCellSort sortKey='DELETE'></HeaderCellSort>
 							<HeaderCellSort sortKey='NAME'>Name</HeaderCellSort>
 							<HeaderCellSort sortKey='AMOUNT'>Amount</HeaderCellSort>
 							<HeaderCellSort sortKey='CATEGORY'>Category</HeaderCellSort>
@@ -79,6 +91,13 @@ export function TransactionTable({ nodes, handleUpdate }: Props) {
 					<Body>
 						{tableList.map((item: Transaction) => (
 							<Row key={item.id} item={item}>
+								<Cell>
+									<DeleteCheckboxCell
+										type="checkbox"
+										id={item.id}
+										deleteSet={deleteSet}
+									/>
+								</Cell>
 								<Cell>
 									<EditableCell
 										type="text"

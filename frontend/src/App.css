@@ -71,3 +71,39 @@
   gap: 10px;
   margin: 10px;
 }
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#submit-menu {
+  position: fixed;
+  top: 25%;
+  left: 25%;
+  right: 25%;
+  bottom: 25%;
+  background-color: lightgrey;
+  padding: 2rem;
+  border-radius: 40px;
+  border-color: black;
+  border-width: 10px;
+  min-width: 300px;
+}
+
+.submit-menu-buttons {
+  margin: .5rem;
+}
+
+.selected-button {
+  background-color: darkgrey;
+}
+

@@ -5,6 +5,8 @@ import { type Transaction } from './Transaction.tsx'
 import { Graph } from './Graph.tsx'
 import { CategoryDisplay } from './CategoryDisplay.tsx'
 import type { Event, Identifier } from '@table-library/react-table-library/types/table'
+import InputTransactionButton from './InputTransactionButton.tsx'
+import SubmitMenu from './SubmitMenu.tsx'
 
 
 function App() {
@@ -12,6 +14,7 @@ function App() {
   const [allSpentMonthlyTotals, setSpentLine] = useState<number[]>([]);
   const [incomeMonthlyTotals, setIncomeLine] = useState<number[]>([]);
   const [budgetTotal, updateTotalBudget] = useState(0);
+  const [submitMenuOpen, setSubmitMenuOpen] = useState(false);
 
   async function pullTransactions() {
     let response = await fetch("api/getTransactions");
@@ -65,7 +68,8 @@ function App() {
 
   useEffect(() => {
     pullTransactions();
-  }, [])
+    console.log("Pulling Transactions");
+  }, [submitMenuOpen])
 
   // Sends form data to backend
   async function sendData(e: Event) {
@@ -120,11 +124,9 @@ function App() {
               <button type="submit">Submit</button>
             </form>
 
-            <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
-              <label>Input File</label>
-              <input name="TransactionFile" type='file' />
-              <button type="submit">Submit</button>
-            </form>
+            <div className="tile">
+              <button onClick={() => { setSubmitMenuOpen(true) }} style={{ width: "100%" }}>Add Transaction</button>
+            </div>
           </div>
 
           <div id='graph-div' className='tile tile-2'>
@@ -137,8 +139,14 @@ function App() {
         </div>
         <CategoryDisplay changeBudget={changeBudget} />
       </div>
+      {submitMenuOpen && (<SubmitMenu setSubmitMenuOpen={setSubmitMenuOpen} />)}
     </>
   )
 }
 
+// <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
+//   <label>Input File</label>
+//   <input name="TransactionFile" type='file' />
+//   <button type="submit">Submit</button>
+// </form>
 export default App
