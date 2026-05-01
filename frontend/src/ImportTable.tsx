@@ -59,11 +59,12 @@ function DeleteCheckboxCell({ type, id, deleteSet }: { type: string, id: number,
 
 interface Props {
 	nodes: Transaction[],
-	handleUpdate: (value: string, id: Identifier, property: string) => {}
-	handleDelete: (deleteSet: Set<Identifier>) => {}
+	submitTransactions: (newTransactions: Transaction[]) => {}
 }
 
-export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
+export default function ImportTable({ nodes, submitTransactions }: Props) {
+	// const [transactions, updateTransactions] = useState([])
+	const [transactions, updateTransactions] = useState<Map<Identifier, Transaction>>(new Map<Identifier, Transaction>())
 	const deleteSet = new Set<Identifier>();
 
 	const theme = useTheme(getTheme());
@@ -76,6 +77,43 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 			DATE: (array) => array.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 		}
 	});
+
+	function handleDelete(idsToDelete: Set<Identifier>) {
+		// newTransactions = transactions.filter((transaction) => transaction.id
+		let newTransactions = transactions;
+		idsToDelete.forEach((id) => newTransactions.delete(id));
+		updateTransactions(newTransactions);
+	}
+
+	function updateTransactionValue(value: string, id: Identifier, property: string) {
+		let newTransactions = transactions;
+		let targetTransaction = newTransactions.get(id);
+		if (targetTransaction != undefined) {
+			switch (property) {
+				case "name":
+					targetTransaction.name = value;
+					break;
+
+				case "amount":
+					const newAmount = Number.parseFloat(value);
+					if (!isNaN(newAmount)) {
+						targetTransaction.amount = newAmount;
+					}
+					break;
+
+				case "category":
+					targetTransaction.category = value;
+					break;
+
+				case "date":
+					targetTransaction.date = value;
+					break;
+
+			}
+			newTransactions.set(id, targetTransaction);
+			updateTransactions(newTransactions);
+		}
+	}
 
 	return (
 		<>
@@ -109,7 +147,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 											value={item.name}
 											id={item.id}
 											property='name'
-											handleUpdate={handleUpdate}
+											handleUpdate={updateTransactionValue}
 										/>
 									</Cell>
 									<Cell>
@@ -118,7 +156,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 											value={item.amount.toString()}
 											id={item.id}
 											property='amount'
-											handleUpdate={handleUpdate}
+											handleUpdate={updateTransactionValue}
 										/>
 									</Cell>
 									<Cell>
@@ -127,7 +165,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 											value={item.category}
 											id={item.id}
 											property='category'
-											handleUpdate={handleUpdate}
+											handleUpdate={updateTransactionValue}
 										/>
 									</Cell>
 									<Cell>
@@ -136,7 +174,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 											value={item.date}
 											id={item.id}
 											property='date'
-											handleUpdate={handleUpdate}
+											handleUpdate={updateTransactionValue}
 										/>
 									</Cell>
 								</Row>
@@ -145,6 +183,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 					</>
 				)}
 			</Table>
+			<button onClick={() => { submitTransactions([...transactions.values()]) }}>Submit</button>
 		</>
 	);
 };

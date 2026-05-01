@@ -1,8 +1,11 @@
 import { useRef, useState } from "react";
+import ImportTable from "./ImportTable";
+import type { Transaction } from "./Transaction";
 
-export default function SubmitMenu({ setSubmitMenuOpen }: { setSubmitMenuOpen: (isOpen: boolean) => void }) {
+export default function SubmitMenu({ setSubmitMenuOpen, submitTransactions }: { setSubmitMenuOpen: (isOpen: boolean) => void, submitTransactions: (newTransactions: Transaction[]) => {} }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [fileFormat, updateFileFormat] = useState("card")
+	const [importedTransactions, updateImportedTransactions] = useState<Transaction[]>([])
 
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
@@ -16,7 +19,18 @@ export default function SubmitMenu({ setSubmitMenuOpen }: { setSubmitMenuOpen: (
 
 		// If the target was a form then send its data to the backend and pull the updated transactions
 		try {
-			await fetch("/api/submitFile", { method: "POST", body: form, });
+			const response = await fetch("/api/submitFile", { method: "POST", body: form, });
+			let result: Transaction[] = await response.json();
+
+			let i = 0;
+			const indexedResult = result.map((t) => {
+				let indexedTransaction = t;
+				indexedTransaction.id = i++;
+				return indexedTransaction;
+			});
+			console.log(indexedResult);
+			updateImportedTransactions(indexedResult);
+
 		} catch (e) {
 			console.error(e)
 		}
@@ -36,6 +50,7 @@ export default function SubmitMenu({ setSubmitMenuOpen }: { setSubmitMenuOpen: (
 				<br />
 				<button className="submit-menu-buttons" onClick={() => setSubmitMenuOpen(false)}>Close</button>
 			</div>
+			<ImportTable nodes={importedTransactions} submitTransactions={submitTransactions} />
 		</div>
 	);
 }

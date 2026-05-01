@@ -56,6 +56,49 @@ func main() {
 	}
 	mux.HandleFunc("/addTransaction", manualTransactionInput)
 
+	// API for adding a set of transactions
+	addTransactions := func(w http.ResponseWriter, req *http.Request) {
+		// Create json type
+		type requestJson struct {
+			Name     string `json:"name"`
+			Amount   string `json:"amount"`
+			Category string `json:"category"`
+			Date     string `json:"date"`
+		}
+
+		// Parse Input
+		var body []requestJson
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		transactions := []user.Transaction{}
+		for _, t := range body {
+
+			amount, err := strconv.ParseFloat(t.Amount, 64)
+			if err != nil {
+				fmt.Println("Error parsing the input value")
+				log.Fatal(err)
+			}
+
+			//Format date string
+			date, err := time.Parse(time.DateOnly, t.Date)
+			if err != nil {
+				fmt.Println("Error: unrecognized date format. Expected yyyy-mm-dd")
+				log.Fatal(err)
+			}
+			transactions = append(transactions, user.NewTransaction(t.Name, amount, t.Category, date))
+
+		}
+
+		// Add input to db
+		dbconn.AddTransactions(transactions)
+	}
+	mux.HandleFunc("/addTransactions", addTransactions)
+
 	// API for  retrieving all transactions
 	getTransactions := func(w http.ResponseWriter, req *http.Request) {
 		fmt.Println("Retrieving Transactions")
@@ -76,6 +119,8 @@ func main() {
 		}
 		transactions := ParseCSV(format, file)
 		dbconn.AddTransactions(transactions)
+
+		json.NewEncoder(w).Encode(transactions)
 	}
 	mux.HandleFunc("/submitFile", submitFile)
 
@@ -233,6 +278,33 @@ func main() {
 
 	}
 	mux.HandleFunc("/updateCategory", updateCategory)
+
+	// API for deleting a list of Transactions based on their ids
+	deleteTransactions := func(w http.ResponseWriter, req *http.Request) {
+		fmt.Println("Deleting Transactions")
+
+		// Create json type
+		type DeleteTransactionsRequest struct {
+			Ids []int `json:"ids"`
+		}
+
+		// Parse Input
+		var body DeleteTransactionsRequest
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		idsToDelete := body.Ids
+
+		// for _, id := range idsToDelete {
+		dbconn.DeleteTransaction(idsToDelete)
+		// }
+
+	}
+	mux.HandleFunc("/deleteTransactions", deleteTransactions)
 
 	fmt.Println(http.ListenAndServe(":8080", mux))
 }

@@ -3,11 +3,13 @@ package dbconn
 import (
 	"database/sql"
 	"fmt"
-	"github.com/codster101/wallet-watcher/user"
-	"github.com/go-sql-driver/mysql"
 	"log"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/codster101/wallet-watcher/user"
+	"github.com/go-sql-driver/mysql"
 )
 
 var db *sql.DB
@@ -267,4 +269,38 @@ func UpdateCategory(name string, amount float64) {
 		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
 		fmt.Printf("UPDATE Categories SET Amount= %f WHERE Name= %s\n", amount, name)
 	}
+}
+
+func DeleteTransaction(ids []int) {
+	if len(ids) == 0 {
+		return
+	}
+
+	placeholders := make([]string, len(ids))
+	arguments := make([]any, len(ids))
+
+	for i, id := range ids {
+		placeholders[i] = "?"
+		arguments[i] = id
+	}
+
+	query := fmt.Sprintf("DELETE FROM Transactions WHERE Id IN (%s)", strings.Join(placeholders, ", "))
+	result, err := db.Exec(query, arguments...)
+	if err != nil {
+		fmt.Println("Error Deleting Transactions")
+		fmt.Println(placeholders)
+		fmt.Println(arguments...)
+		log.Fatal(err)
+	}
+
+	rows, err := result.RowsAffected()
+	// if err != nil {
+	// 	fmt.Println("Error Updating Transaction")
+	// 	log.Fatal(err)
+	// }
+	if rows != 1 {
+		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
+		// fmt.Printf("Query: UPDATE Transactions SET Name = %s WHERE Id = %d\n", value, id)
+	}
+
 }

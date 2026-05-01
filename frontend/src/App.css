@@ -107,3 +107,8 @@
   background-color: darkgrey;
 }
 
+.table-library__table input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}

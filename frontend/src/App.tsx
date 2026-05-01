@@ -5,7 +5,6 @@ import { type Transaction } from './Transaction.tsx'
 import { Graph } from './Graph.tsx'
 import { CategoryDisplay } from './CategoryDisplay.tsx'
 import type { Event, Identifier } from '@table-library/react-table-library/types/table'
-import InputTransactionButton from './InputTransactionButton.tsx'
 import SubmitMenu from './SubmitMenu.tsx'
 
 
@@ -17,6 +16,7 @@ function App() {
   const [submitMenuOpen, setSubmitMenuOpen] = useState(false);
 
   async function pullTransactions() {
+    console.time("Pull Transactions");
     let response = await fetch("api/getTransactions");
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
@@ -26,10 +26,22 @@ function App() {
     // console.log("Response: " + JSON.stringify(result));
     setTransactionList(result)
 
-    updateGraphSpentLine();
+    updateGraph();
+    console.timeEnd("Pull Transactions");
+  }
+
+  async function addTransactions(newTransactions: Transaction[]) {
+
+    console.time("Add Transactions");
+    await fetch("/api/addTransactions", { method: "POST", body: JSON.stringify(newTransactions) });
+
+    pullTransactions();
+
+    console.timeEnd("Add Transactions");
   }
 
   async function updateTransaction(value: string, id: Identifier, property: string) {
+    console.time("Update Transactions");
     let response = await fetch("api/updateTransaction", {
       method: "POST",
       body: JSON.stringify({ value: value, id: id, property: property })
@@ -39,9 +51,25 @@ function App() {
     }
 
     pullTransactions();
+    console.timeEnd("Update Transactions");
   }
 
-  async function updateGraphSpentLine() {
+  async function deleteTransaction(idsToDelete: Set<Identifier>) {
+    console.time("Delete Transactions");
+    let response = await fetch("api/deleteTransactions", {
+      method: "POST",
+      body: JSON.stringify({ ids: [...idsToDelete] })
+    });
+    if (!response.ok) {
+      throw new Error('Response status: ${response.status}');
+    }
+
+    pullTransactions();
+    console.timeEnd("Delete Transactions");
+  }
+
+  async function updateGraph() {
+    console.time("Update Spent Line");
     let response = await fetch("api/getAllSpentMonthlyTotals");
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
@@ -50,7 +78,9 @@ function App() {
     let result = await response.json();
     // console.log("Response: " + JSON.stringify(result));
     setSpentLine(result)
+    console.timeEnd("Update Spent Line");
 
+    console.time("Update Income Line");
     response = await fetch("api/getIncomeMonthlyTotals");
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
@@ -59,6 +89,7 @@ function App() {
     result = await response.json();
     // console.log("Response: " + JSON.stringify(result));
     setIncomeLine(result)
+    console.timeEnd("Update Income Line");
   }
 
   function changeBudget(change: number) {
@@ -134,12 +165,12 @@ function App() {
           </div>
 
           <div className='tile tile-3'>
-            <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} />
+            <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} handleDelete={deleteTransaction} />
           </div>
         </div>
         <CategoryDisplay changeBudget={changeBudget} />
       </div>
-      {submitMenuOpen && (<SubmitMenu setSubmitMenuOpen={setSubmitMenuOpen} />)}
+      {submitMenuOpen && (<SubmitMenu setSubmitMenuOpen={setSubmitMenuOpen} submitTransactions={addTransactions} />)}
     </>
   )
 }
