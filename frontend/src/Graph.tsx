@@ -10,7 +10,7 @@ import {
 	Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { type Transaction } from './Transaction.tsx'
+import type { Category } from './Category.tsx';
 
 ChartJS.register(
 	CategoryScale,
@@ -45,10 +45,18 @@ export const options = {
 
 const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-export function Graph({ allSpentMonthlyTotals, incomeMonthlyTotals, budgetTotal }: { allSpentMonthlyTotals: number[], incomeMonthlyTotals: number[], budgetTotal: number }) {
+export function Graph({ categories }: { categories: Category[] }) {
 
-	function GetMonthlyBudgetTotal() {
-		return (new Array(12)).fill(budgetTotal);
+	function SpentLine() {
+		return categories.reduce((sum, current) => current.name != "Income" ? sum.map((x, i) => x + current.spent[i]) : sum, Array(12).fill(0));
+	}
+
+	function IncomeLine() {
+		return categories.reduce((sum, current) => current.name == "Income" ? sum.map((x, i) => x + current.spent[i]) : sum, Array(12).fill(0));
+	}
+
+	function BudgetLine() {
+		return Array(12).fill(categories.reduce((sum, current) => current.name != "Income" ? sum + current.budget : sum, 0));
 	}
 
 	const data = {
@@ -56,19 +64,19 @@ export function Graph({ allSpentMonthlyTotals, incomeMonthlyTotals, budgetTotal 
 		datasets: [
 			{
 				label: 'Spent',
-				data: allSpentMonthlyTotals,
+				data: SpentLine(),
 				borderColor: 'rgb(255, 99, 132)',
 				backgroundColor: 'rgb(255, 99, 132)',
 			},
 			{
 				label: 'Income',
-				data: incomeMonthlyTotals,
+				data: IncomeLine(),
 				borderColor: 'rgb(99, 255, 132)',
 				backgroundColor: 'rgb(99, 255, 132)',
 			},
 			{
 				label: 'Budget',
-				data: GetMonthlyBudgetTotal(),
+				data: BudgetLine(),
 				borderColor: 'rgb(132, 99, 255)',
 				backgroundColor: 'rgb(132, 99, 255)',
 			},

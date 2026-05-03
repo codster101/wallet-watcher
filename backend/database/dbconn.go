@@ -202,7 +202,7 @@ func GetTransactionsInMonth(month int) []user.Transaction {
 	return transactions
 }
 
-func GetAllCategories() []*user.Category {
+func GetAllCategories() []user.Category {
 	results, err := db.Query("SELECT * FROM Categories")
 	if err != nil {
 		fmt.Println("Error Getting All Categories")
@@ -210,7 +210,7 @@ func GetAllCategories() []*user.Category {
 	}
 	defer results.Close()
 
-	var categories []*user.Category
+	var categories []user.Category
 	for results.Next() {
 		var (
 			name   string
@@ -223,7 +223,7 @@ func GetAllCategories() []*user.Category {
 			log.Fatal(err)
 		}
 
-		categories = append(categories, user.NewCategory(name, budget, id, 0))
+		categories = append(categories, user.NewCategory(name, budget, id, [12]float64{}))
 	}
 	if err := results.Err(); err != nil {
 		fmt.Println("Error traversing queried rows")

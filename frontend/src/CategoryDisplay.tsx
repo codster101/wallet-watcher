@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { Category } from './Category.tsx'
 
-function getBudgetTotal(categoryList: Category[]) {
-	console.log(categoryList.reduce((sum, curr) => sum + curr.budget, 0));
-	return categoryList.reduce((sum, curr) => sum + curr.budget, 0);
-}
+// function getBudgetTotal(categoryList: Category[]) {
+// 	console.log(categoryList.reduce((sum, curr) => sum + curr.budget, 0));
+// 	return categoryList.reduce((sum, curr) => sum + curr.budget, 0);
+// }
 
-function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: number, changeBudget: (budgetChange: number) => void }) {
+function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: number, changeBudget: (name: string, budgetChange: number) => void }) {
 	// Value state
 	const [budgetValue, updateBudget] = useState(budget);
 	const [oldBudget, submitBudget] = useState(budgetValue);
@@ -31,8 +31,7 @@ function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: num
 				onChange={(event) => { updateBudget(Number.parseFloat(event.target.value)) }}
 				onBlur={() => {
 					updateCategory(name, budgetValue);
-					console.log(budgetValue - oldBudget);
-					changeBudget(budgetValue - oldBudget);
+					changeBudget(name, budgetValue - oldBudget);
 					submitBudget(budgetValue);
 				}}
 				onKeyDown={(event) => {
@@ -46,7 +45,7 @@ function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: num
 	);
 }
 
-export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: number) => void }) {
+export function CategoryDisplay({ categories, changeBudget }: { categories: Category[], changeBudget: (name: string, totalBudget: number) => void }) {
 	const months = [
 		"January", "February", "March", "April",
 		"May", "June", "July", "August",
@@ -54,28 +53,6 @@ export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: 
 	];
 
 	const [month, setMonth] = useState((new Date()).getMonth())
-
-	const [categories, setCategories] = useState<Category[]>([]);
-
-	async function getCategories(month: number) {
-		const response = await fetch("api/getCategoryTotals", {
-			method: "POST",
-			body: JSON.stringify({ month: month })
-		});
-		if (!response.ok) {
-			throw new Error(`Response status: ${response.status}`);
-		}
-
-		const result = await response.json();
-		// console.log("Response: " + JSON.stringify(result));
-		setCategories(result);
-		// console.log(getBudgetTotal(result));
-		changeBudget(getBudgetTotal(result));
-	}
-
-	useEffect(() => {
-		getCategories(month)
-	}, [month])
 
 	function getBorderColor(budget: number, spent: number) {
 		if (budget < spent) {
@@ -101,15 +78,15 @@ export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: 
 				setMonth(Number.parseInt(event.target.value));
 			}}>
 				{months.map((month, i) => (
-					<option key={i + 1} value={i + 1}>{month}</option>
-				))}
+					<option key={i} value={i}>{month}</option>
+				))}:
 			</select>
 			<div id='category-grid'>
 				{categories.map((category) => (
-					<div key={category.id} className='tile'
+					<div key={category.name} className='tile'
 						style={{
-							backgroundColor: getBackgroundColor(category.budget, category.spent),
-							borderColor: getBorderColor(category.budget, category.spent)
+							backgroundColor: getBackgroundColor(category.budget, category.spent[month]),
+							borderColor: getBorderColor(category.budget, category.spent[month])
 						}}>
 						<p>{category.name}</p>
 						<BudgetLabel
@@ -117,7 +94,7 @@ export function CategoryDisplay({ changeBudget }: { changeBudget: (totalBudget: 
 							budget={category.budget}
 							changeBudget={changeBudget}
 						/>
-						<p>Spent: {category.spent}</p>
+						<p>Spent: {category.spent[month]}</p>
 					</div>
 				))}
 			</div>

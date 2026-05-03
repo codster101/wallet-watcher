@@ -6,39 +6,37 @@ type Category struct {
 	name   string
 	budget float64
 	id     int
-	spent  float64
+	spent  [12]float64
 }
 
-func NewCategory(name string, budgetAmt float64, id int, spentAmt float64) *Category {
-	return &Category{name: name, budget: budgetAmt, id: id, spent: spentAmt}
+func NewCategory(name string, budgetAmt float64, id int, spentAmt [12]float64) Category {
+	return Category{name: name, budget: budgetAmt, id: id, spent: spentAmt}
 }
 
-func (c *Category) Name() string {
+func (c Category) Name() string {
 	return c.name
 }
 
-func (c *Category) Budget() float64 {
+func (c Category) Budget() float64 {
 	return c.budget
 }
 
-func (c *Category) Spent() float64 {
+func (c Category) Spent() [12]float64 {
 	return c.spent
 }
 
-func (c *Category) AddToSpent(amount float64) {
-	c.spent += amount
+func (c *Category) AddToSpent(amount float64, month int) {
+	c.spent[month] += amount
 }
 
 func (c Category) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Name   string  `json:"name"`
-		Budget float64 `json:"budget"`
-		Spent  float64 `json:"spent"`
-		Id     int     `json:"id"`
+		Name   string      `json:"name"`
+		Budget float64     `json:"budget"`
+		Spent  [12]float64 `json:"spent"`
 	}{
 		Name:   c.Name(),
 		Budget: c.Budget(),
 		Spent:  c.Spent(),
-		Id:     c.id,
 	})
 }

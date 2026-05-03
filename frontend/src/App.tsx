@@ -6,14 +6,26 @@ import { Graph } from './Graph.tsx'
 import { CategoryDisplay } from './CategoryDisplay.tsx'
 import type { Event, Identifier } from '@table-library/react-table-library/types/table'
 import SubmitMenu from './SubmitMenu.tsx'
+import type { Category } from './Category.tsx'
 
 
 function App() {
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
-  const [allSpentMonthlyTotals, setSpentLine] = useState<number[]>([]);
-  const [incomeMonthlyTotals, setIncomeLine] = useState<number[]>([]);
-  const [budgetTotal, updateTotalBudget] = useState(0);
+  const [categories, updateCategories] = useState<Category[]>([]);
   const [submitMenuOpen, setSubmitMenuOpen] = useState(false);
+
+  async function loadPage() {
+
+    let response = await fetch("api/loadPage");
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    let result = await response.json();
+    setTransactionList(result.transactions);
+    updateCategories(result.categories);
+
+  }
 
   async function pullTransactions() {
     console.time("Pull Transactions");
@@ -70,36 +82,25 @@ function App() {
 
   async function updateGraph() {
     console.time("Update Spent Line");
-    let response = await fetch("api/getAllSpentMonthlyTotals");
+    let response = await fetch("api/getCategories");
     if (!response.ok) {
       throw new Error(`Response status: ${response.status}`);
     }
 
     let result = await response.json();
     // console.log("Response: " + JSON.stringify(result));
-    setSpentLine(result)
     console.timeEnd("Update Spent Line");
+    updateCategories(result)
 
-    console.time("Update Income Line");
-    response = await fetch("api/getIncomeMonthlyTotals");
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    result = await response.json();
-    // console.log("Response: " + JSON.stringify(result));
-    setIncomeLine(result)
-    console.timeEnd("Update Income Line");
   }
 
-  function changeBudget(change: number) {
-    console.log(budgetTotal + change);
-    updateTotalBudget(budgetTotal + change);
+  function changeBudget(name: string, change: number) {
+    const updatedCategories = categories.map(c => c.name == name ? { ...c, budget: c.budget + change } : c);
+    updateCategories(updatedCategories);
   }
 
   useEffect(() => {
-    pullTransactions();
-    console.log("Pulling Transactions");
+    loadPage();
   }, [submitMenuOpen])
 
   // Sends form data to backend
@@ -161,14 +162,14 @@ function App() {
           </div>
 
           <div id='graph-div' className='tile tile-2'>
-            <Graph allSpentMonthlyTotals={allSpentMonthlyTotals} incomeMonthlyTotals={incomeMonthlyTotals} budgetTotal={budgetTotal} />
+            <Graph categories={categories} />
           </div>
 
           <div className='tile tile-3'>
             <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} handleDelete={deleteTransaction} />
           </div>
         </div>
-        <CategoryDisplay changeBudget={changeBudget} />
+        <CategoryDisplay categories={categories} changeBudget={changeBudget} />
       </div>
       {submitMenuOpen && (<SubmitMenu setSubmitMenuOpen={setSubmitMenuOpen} submitTransactions={addTransactions} />)}
     </>
