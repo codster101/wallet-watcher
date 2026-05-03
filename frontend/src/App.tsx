@@ -101,7 +101,7 @@ function App() {
 
   useEffect(() => {
     loadPage();
-  }, [submitMenuOpen])
+  }, [])
 
   // Sends form data to backend
   async function sendData(e: Event) {

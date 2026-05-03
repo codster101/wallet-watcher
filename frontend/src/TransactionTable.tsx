@@ -64,6 +64,14 @@ interface Props {
 }
 
 export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
+
+	const [month, setMonth] = useState((new Date()).getMonth())
+	const months = [
+		"January", "February", "March", "April",
+		"May", "June", "July", "August",
+		"September", "October", "November", "December"
+	];
+
 	const deleteSet = new Set<Identifier>();
 
 	const theme = useTheme(getTheme());
@@ -77,10 +85,21 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 		}
 	});
 
+	nodes = nodes.filter((t) => (new Date(t.date)).getMonth() == month ? true : false);
+	console.log(nodes);
+
+
 	return (
 		<>
+			<select defaultValue={month} onChange={(event) => {
+				setMonth(Number.parseInt(event.target.value));
+			}}>
+				{months.map((month, i) => (
+					<option key={i} value={i}>{month}</option>
+				))}:
+			</select>
 			<button onClick={() => { handleDelete(deleteSet) }}>Delete</button>
-			<Table data={{ nodes }} theme={theme} sort={sort}>
+			<Table data={{ nodes }} theme={theme} sort={sort} style={{ height: "500px" }}>
 				{(tableList: TableNode) => (
 					<>
 						<Header>

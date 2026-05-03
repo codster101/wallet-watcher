@@ -41,13 +41,12 @@ func main() {
 			}
 		}
 
-		fmt.Println(categories)
-
 		return categories
 
 	}
 
 	loadPage := func(w http.ResponseWriter, req *http.Request) {
+		start := time.Now()
 		transactions := dbconn.GetAllTransactions()
 
 		categories := calculateCategoryMonthlyPurchases(transactions)
@@ -63,6 +62,8 @@ func main() {
 		}
 
 		json.NewEncoder(w).Encode(body)
+
+		fmt.Println("Load Page" + time.Since(start).String())
 	}
 	mux.HandleFunc("/loadPage", loadPage)
 
