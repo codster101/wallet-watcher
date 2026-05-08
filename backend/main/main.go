@@ -45,6 +45,17 @@ func main() {
 
 	}
 
+	// evaluateRule := func(transaction user.Transaction) {
+	//
+	// 	rules := dbconn.GetRules()
+	//
+	// 	for _, rule := range rules {
+	// 		if rule.Check(transaction) {
+	// 			transaction.SetCategory(rule.Category())
+	// 		}
+	// 	}
+	// }
+
 	loadPage := func(w http.ResponseWriter, req *http.Request) {
 		start := time.Now()
 		transactions := dbconn.GetAllTransactions()
@@ -177,113 +188,19 @@ func main() {
 	}
 	mux.HandleFunc("/submitFile", submitFile)
 
-	// API for getting monthly totals
-	// This will query the DB for all transactions then determine the total spent for each month
-	// NTD - The monthly totals are for the last 12 months including the current month
-	// NTD - Months prior will not be included in the returned totals
-	// NTD - The response will contain a json list of the totals with exactly 12 floats
-	// getAllSpentMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
-	// 	start := time.Now()
-	//
-	// 	transactions := dbconn.GetAllTransactions()
-	//
-	// 	monthTransactionTotals := [12]float64{} // array of months. Each index contains the total for that month
-	// 	// Go through each transaction and add it to the total for the month
-	// 	for _, t := range transactions {
-	// 		if t.Category() != "Income" {
-	// 			monthTransactionTotals[t.GetMonthInt()-1] += t.Amount()
-	// 		}
-	// 	}
-	//
-	// 	jsonMonthlyTotals := "["
-	// 	for _, a := range monthTransactionTotals {
-	// 		jsonMonthlyTotals += strconv.FormatFloat(a, 'f', 2, 64) + ", "
-	// 	}
-	// 	jsonMonthlyTotals = jsonMonthlyTotals[:len(jsonMonthlyTotals)-2] + "]"
-	// 	// fmt.Println(jsonMonthlyTotals)
-	// 	io.WriteString(w, jsonMonthlyTotals)
-	//
-	// 	fmt.Println("Gettting Monthly Spent Totals: " + time.Since(start).String())
-	// }
-	// mux.HandleFunc("/getAllSpentMonthlyTotals", getAllSpentMonthlyTotals)
-
-	// API for getting all monthly totals for transactions in the "Income Category"
-	// This will query the DB for all "Income" transactions then determine the total spent for each month
-	// NTD - The monthly totals are for the last 12 months including the current month
-	// NTD - Months prior will not be included in the returned totals
-	// NTD - The response will contain a json list of the totals with exactly 12 floats
-	// getIncomeMonthlyTotals := func(w http.ResponseWriter, req *http.Request) {
-	// 	start := time.Now()
-	// 	transactions := dbconn.GetAllTransactionsInCategory("Income")
-	//
-	// 	monthTransactionTotals := [12]float64{} // array of months. Each index contains the total for that month
-	// 	// Go through each transaction and add it to the total for the month
-	// 	for _, t := range transactions {
-	// 		monthTransactionTotals[t.GetMonthInt()-1] += t.Amount()
-	// 	}
-	//
-	// 	jsonMonthlyTotals := "["
-	// 	for _, a := range monthTransactionTotals {
-	// 		jsonMonthlyTotals += strconv.FormatFloat(a, 'f', 2, 64) + ", "
-	// 	}
-	// 	jsonMonthlyTotals = jsonMonthlyTotals[:len(jsonMonthlyTotals)-2] + "]"
-	// 	// fmt.Println(jsonMonthlyTotals)
-	// 	io.WriteString(w, jsonMonthlyTotals)
-	// 	fmt.Println("Gettting Income Spent Totals: " + time.Since(start).String())
-	// }
-	// mux.HandleFunc("/getIncomeMonthlyTotals", getIncomeMonthlyTotals)
-
 	// API for getting category information
 	// This will query the DB for all transactions and put their totals in the corresponding category
 	// The categories will hold a list of 12 floats each corresponding to amount spent in that month (0: January, 1: February, etc.)
 	// NTD - Passing in an integer 1-12 will return category totals for the corresponding month
-	getCategoryTotals := func(w http.ResponseWriter, req *http.Request) {
+	getCategories := func(w http.ResponseWriter, req *http.Request) {
 		start := time.Now()
-
-		// // Create json type
-		// type requestJson struct {
-		// 	Month int `json:"month"`
-		// }
-		//
-		// // Parse Input
-		// var body requestJson
-		// err := json.NewDecoder(req.Body).Decode(&body)
-		// if err != nil {
-		// 	fmt.Println("Error parsing the HTTP request")
-		// 	log.Fatal(err)
-		// }
-		// defer req.Body.Close()
-		//
-		// month := body.Month
-
-		// Get all categories (name, budget)
-		// categories := dbconn.GetAllCategories()
-
-		// Put all category objects into a map for easy reference
-		// categoryRef := map[string]int{}		// category name : index in category list
-		// for i, c := range categories {
-		// 	categoryRef[c.Name()] = i
-		// }
-		//
-		// // Get all transactions for the month
-		// transactions := dbconn.GetAllTransactions()
-
-		// // For each transaction add its total to the category total
-		// for _, t := range transactions {
-		// 	if index, ok := categoryRef[t.Category()]; !ok {	// If the category does not exists
-		// 		fmt.Println("Category of transaction not found in Category table")
-		// 		log.Fatal(t.Category())
-		// 	} else {
-		// 		categories[index].AddToSpent(t.Amount(), t.GetMonthInt())
-		// 	}
-		// }
 
 		categories := calculateCategoryMonthlyPurchases(dbconn.GetAllTransactions())
 
 		json.NewEncoder(w).Encode(categories)
 		fmt.Println("Gettting Category Totals: " + time.Since(start).String())
 	}
-	mux.HandleFunc("/getCategories", getCategoryTotals)
+	mux.HandleFunc("/getCategories", getCategories)
 
 	// API for submitting transaction files
 	updateTransaction := func(w http.ResponseWriter, req *http.Request) {
@@ -370,6 +287,35 @@ func main() {
 
 	}
 	mux.HandleFunc("/deleteTransactions", deleteTransactions)
+
+	addRule := func(w http.ResponseWriter, req *http.Request) {
+
+		start := time.Now()
+
+		// Parse/Handle input
+		category := req.FormValue("Category")
+		operator := req.FormValue("Operator")
+		target := req.FormValue("Target")
+
+		id := dbconn.AddRule(category, operator, target)
+
+		type IdResponse struct{ Id int }
+
+		response := IdResponse{Id: id}
+		json.NewEncoder(w).Encode(response)
+
+		fmt.Println("Adding Rule: " + time.Since(start).String())
+	}
+	mux.HandleFunc("/addRule", addRule)
+
+	getRules := func(w http.ResponseWriter, req *http.Request) {
+
+		rules := dbconn.GetRules()
+
+		json.NewEncoder(w).Encode(rules)
+
+	}
+	mux.HandleFunc("/getRules", getRules)
 
 	fmt.Println(http.ListenAndServe(":8080", mux))
 }

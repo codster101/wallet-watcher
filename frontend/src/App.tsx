@@ -1,4 +1,4 @@
-import './App.css'
+
 import { useEffect, useState } from 'react'
 import { TransactionTable } from './TransactionTable.tsx'
 import { type Transaction } from './Transaction.tsx'
@@ -8,7 +8,19 @@ import type { Event, Identifier } from '@table-library/react-table-library/types
 import SubmitMenu from './SubmitMenu.tsx'
 import type { Category } from './Category.tsx'
 
+// const root = document.getElementById("root");
 
+// if (root != null) {
+//   ReactDOM.createRoot(root).render(
+//     <BrowserRouter>
+//       <Routes>
+//         <Route index element={<App />} />
+//         <Route path='rules' element={<Rules />} />
+//       </Routes>
+//     </BrowserRouter>,
+//   );
+// }
+//
 function App() {
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
   const [categories, updateCategories] = useState<Category[]>([]);
@@ -104,7 +116,7 @@ function App() {
   }, [])
 
   // Sends form data to backend
-  async function sendData(e: Event) {
+  async function sendData(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault(); // Prevents page from reloading
 
     // Creates new form data object
@@ -176,9 +188,4 @@ function App() {
   )
 }
 
-// <form className='tile' action="/api/submitFile" method="post" encType='multipart/form-data'>
-//   <label>Input File</label>
-//   <input name="TransactionFile" type='file' />
-//   <button type="submit">Submit</button>
-// </form>
 export default App

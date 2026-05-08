@@ -37,6 +37,10 @@ func (t Transaction) Category() string {
 	return t.category
 }
 
+func (t *Transaction) SetCategory(name string) {
+	t.category = name
+}
+
 func (t Transaction) Date() string {
 	return t.date.Format(time.DateOnly)
 }

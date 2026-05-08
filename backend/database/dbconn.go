@@ -304,3 +304,55 @@ func DeleteTransaction(ids []int) {
 	}
 
 }
+
+func AddRule(category string, operator string, target string) int {
+
+	result, err := db.Exec("INSERT INTO Rules (Category, Operator, Target) VALUES(?, ?, ?)", category, operator, target)
+	if err != nil {
+		fmt.Println("Error Adding Rule")
+		log.Fatal(err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Error Retrieving Id of New Rule")
+		log.Fatal(err)
+	}
+
+	return int(id)
+
+}
+
+func GetRules() []user.Rule {
+
+	results, err := db.Query("SELECT * FROM Rules")
+	if err != nil {
+		fmt.Println("Error Getting All Rules")
+		log.Fatal(err)
+	}
+	defer results.Close()
+
+	var rules []user.Rule
+	for results.Next() {
+		var (
+			category string
+			operator string
+			target   string
+			id       int
+		)
+
+		if err := results.Scan(&category, &operator, &target, &id); err != nil {
+			fmt.Println("Error parsing row")
+			log.Fatal(err)
+		}
+
+		rules = append(rules, user.NewRule(category, operator, target, id))
+	}
+	if err := results.Err(); err != nil {
+		fmt.Println("Error traversing queried rows")
+		log.Fatal(err)
+	}
+
+	return rules
+
+}
