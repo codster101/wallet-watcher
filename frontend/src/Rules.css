@@ -83,6 +83,7 @@
   border-radius: 12px;
   padding: 1.75rem 2rem;
   margin-bottom: 2.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2)
 }
 
 .add-rule-card h2 {
@@ -128,6 +129,7 @@
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
   appearance: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2)
 }
 
 .form-group select:focus,
@@ -186,10 +188,11 @@
   padding: 1rem 1.25rem;
   margin-bottom: 0.65rem;
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  grid-template-columns: 1fr 1.5fr 1.5fr .5fr;
   gap: 0.75rem;
   align-items: center;
   transition: border-color 0.15s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2)
 }
 
 .rule-item:hover { border-color: #2a2a36; }
@@ -217,10 +220,11 @@
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
   padding: 0.35rem 0.5rem;
-  width: 100%;
+  width: 80%;
   transition: border-color 0.15s, background 0.15s;
   outline: none;
   appearance: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2)
 }
 
 .rule-field select:hover,
@@ -260,4 +264,18 @@
   .rule-form-row { grid-template-columns: 1fr 1fr; }
   .btn-add { grid-column: span 2; }
   .rule-item { grid-template-columns: 1fr 1fr; }
+}
+
+.btn-delete { 
+  width: 28px; 
+  height: 28px; 
+  border-radius: var(--border-radius-md); 
+  border: .5px solid transparent; 
+  background: transparent; 
+  cursor: pointer; 
+  color: var(--color-text-tertiary); 
+  font-size: 14px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
 }

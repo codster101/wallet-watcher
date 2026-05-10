@@ -26,6 +26,16 @@ export default function Rules() {
 		}
 	}
 
+	async function deleteRule(id: number) {
+
+		const response = await fetch("api/deleteRule", { method: 'POST', body: JSON.stringify({ "id": id }) });
+		if (!response.ok) {
+			throw new Error('Response status: ${response.status}');
+		}
+
+		setRules((prev) => prev.filter((p) => p.id != id));
+	}
+
 	async function sendData(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault(); // Prevents page from reloading
 
@@ -110,6 +120,7 @@ export default function Rules() {
 								<input type='text' defaultValue={rule.category} onBlur={(e) => updateRule(e.target.value, rule.id, "Category")}
 									onKeyDown={(e) => { if (e.key == "Enter") e.currentTarget.blur() }} />
 							</div>
+							<button className="btn-delete" title="Delete rule" onClick={() => deleteRule(rule.id)}>🗑</button>
 						</div>
 					))}
 				</div>
