@@ -44,20 +44,42 @@ export default function SubmitMenu({ setSubmitMenuOpen, submitTransactions }: { 
 		return transaction;
 	}
 
+	// async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+	// 	const file = e.target.files?.[0];
+	// 	if (!file) return;
+	//
+	// 	// If the target was a form then send its data to the backend and pull the updated transactions
+	// 	try {
+	//
+	// 		let rows = (await readFile(file)).split('\n');
+	// 		rows = rows.slice(1, -1);
+	//
+	// 		let result: Transaction[] = new Array();
+	//
+	// 		rows.map((r, i) => result.push({ ...parseRow(r), id: i })); // Maps each row to a Transaction with an id of the row number
+	// 		updateImportedTransactions(result);
+	//
+	// 	} catch (e) {
+	// 		console.error(e)
+	// 	}
+	// }
+
 	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
+		let form = new FormData();
+		form.append("format", fileFormat);
+		form.append("file", file);
+
 		// If the target was a form then send its data to the backend and pull the updated transactions
 		try {
 
-			let rows = (await readFile(file)).split('\n');
-			rows = rows.slice(1, -1);
+			const response = await fetch("api/submitFile", { method: 'POST', body: form });
+			let result: Transaction[] = await response.json();
 
-			let result: Transaction[] = new Array();
-
-			rows.map((r, i) => result.push({ ...parseRow(r), id: i })); // Maps each row to a Transaction with an id of the row number
-			updateImportedTransactions(result);
+			const indexedResult = result.map((t, i) => { return { ...t, id: i } });
+			updateImportedTransactions(indexedResult);
 
 		} catch (e) {
 			console.error(e)

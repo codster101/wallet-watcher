@@ -46,16 +46,24 @@ func main() {
 
 	}
 
-	// evaluateRule := func(transaction user.Transaction) {
-	//
-	// 	rules := dbconn.GetRules()
-	//
-	// 	for _, rule := range rules {
-	// 		if rule.Check(transaction) {
-	// 			transaction.SetCategory(rule.Category())
-	// 		}
-	// 	}
-	// }
+	evaluateRule := func(transaction *user.Transaction) {
+
+		rules := dbconn.GetRules()
+
+		for _, rule := range rules {
+			if rule.Check(*transaction) {
+				transaction.SetCategory(rule.Category())
+				fmt.Println(*transaction)
+			}
+		}
+	}
+
+	categorize := func(transactions []user.Transaction) {
+		for i := range transactions {
+			evaluateRule(&(transactions[i]))
+			fmt.Println(transactions[i])
+		}
+	}
 
 	loadPage := func(w http.ResponseWriter, req *http.Request) {
 		start := time.Now()
@@ -187,7 +195,10 @@ func main() {
 			log.Fatal(err)
 		}
 		transactions := ParseCSV(format, file)
-		dbconn.AddTransactions(transactions)
+		fmt.Println(transactions)
+		categorize(transactions)
+		fmt.Println(transactions)
+		// dbconn.AddTransactions(transactions)
 
 		json.NewEncoder(w).Encode(transactions)
 		fmt.Println("File Submission: " + time.Since(start).String())

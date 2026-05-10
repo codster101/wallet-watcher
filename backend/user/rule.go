@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 )
 
@@ -35,8 +36,9 @@ func (rule Rule) Id() int {
 func (rule Rule) Check(transaction Transaction) bool {
 	switch rule.operator {
 
-	case "Contains":
-		if strings.Contains(transaction.name, rule.target) {
+	case "contains":
+		fmt.Println("Contains check")
+		if strings.Contains(strings.ToLower(transaction.name), strings.ToLower(rule.target)) {
 			return true
 		}
 	}
