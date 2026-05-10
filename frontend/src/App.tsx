@@ -4,23 +4,12 @@ import { TransactionTable } from './TransactionTable.tsx'
 import { type Transaction } from './Transaction.tsx'
 import { Graph } from './Graph.tsx'
 import { CategoryDisplay } from './CategoryDisplay.tsx'
-import type { Event, Identifier } from '@table-library/react-table-library/types/table'
+import type { Identifier } from '@table-library/react-table-library/types/table'
 import SubmitMenu from './SubmitMenu.tsx'
 import type { Category } from './Category.tsx'
+import './App.css'
 
-// const root = document.getElementById("root");
 
-// if (root != null) {
-//   ReactDOM.createRoot(root).render(
-//     <BrowserRouter>
-//       <Routes>
-//         <Route index element={<App />} />
-//         <Route path='rules' element={<Rules />} />
-//       </Routes>
-//     </BrowserRouter>,
-//   );
-// }
-//
 function App() {
   const [transactionList, setTransactionList] = useState<Transaction[]>([]);
   const [categories, updateCategories] = useState<Category[]>([]);

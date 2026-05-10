@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/codster101/wallet-watcher/database"
@@ -28,12 +29,12 @@ func main() {
 		// Put all category objects into a map for easy reference
 		categoryRef := map[string]int{} // category name : index in category list
 		for i, c := range categories {
-			categoryRef[c.Name()] = i
+			categoryRef[strings.ToLower(c.Name())] = i
 		}
 
 		// For each transaction add its total to the category total
 		for _, t := range transactions {
-			if index, ok := categoryRef[t.Category()]; !ok { // If the category does not exists
+			if index, ok := categoryRef[strings.ToLower(t.Category())]; !ok { // If the category does not exists
 				fmt.Println("Category of transaction not found in Category table")
 				log.Fatal(t.Category())
 			} else {
@@ -97,6 +98,9 @@ func main() {
 			log.Fatal(err)
 		}
 
+		// Format all Categories with first letter capital, rest lowercase: Category
+		category = strings.ToUpper(string(category[0])) + strings.ToLower(category[1:])
+
 		//Format date string
 		date, err := time.Parse(time.DateOnly, dateStr)
 		if err != nil {
@@ -145,13 +149,15 @@ func main() {
 				log.Fatal(err)
 			}
 
+			category := strings.ToUpper(string(t.Category[0])) + strings.ToLower(t.Category[1:])
+
 			//Format date string
 			date, err := time.Parse(time.DateOnly, t.Date)
 			if err != nil {
 				fmt.Println("Error: unrecognized date format. Expected yyyy-mm-dd")
 				log.Fatal(err)
 			}
-			transactions = append(transactions, user.NewTransaction(t.Name, amount, t.Category, date))
+			transactions = append(transactions, user.NewTransaction(t.Name, amount, category, date))
 
 		}
 

@@ -15,7 +15,7 @@ import {
 } from "@table-library/react-table-library/sort";
 import { useTheme } from '@table-library/react-table-library/theme'
 import { getTheme } from '@table-library/react-table-library/baseline'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function EditableCell({ type, value, id, property, handleUpdate }:
 	{ type: string, value: string, id: Identifier, property: string, handleUpdate: (value: string, id: Identifier, property: string) => void }) {
@@ -59,17 +59,24 @@ function DeleteCheckboxCell({ type, id, deleteSet }: { type: string, id: number,
 
 interface Props {
 	nodes: Transaction[],
-	submitTransactions: (newTransactions: Transaction[]) => {}
+	submitTransactions: (newTransactions: Transaction[]) => void
 }
 
 export default function ImportTable({ nodes, submitTransactions }: Props) {
-	// const [transactions, updateTransactions] = useState([])
-	const [transactions, updateTransactions] = useState<Map<Identifier, Transaction>>(new Map<Identifier, Transaction>())
+	// console.log(nodes);
+	const [transactions, updateTransactions] = useState<Transaction[]>([])
 	const deleteSet = new Set<Identifier>();
+	// console.log("Reset Set");
+
+	useEffect(() => updateTransactions(nodes), [nodes])
 
 	const theme = useTheme(getTheme());
 
-	const sort = useSort({ nodes }, {}, {
+	const rows = Array.from(transactions.values());
+	console.log(rows);
+	// console.log(transactions);
+
+	const sort = useSort({ nodes: rows }, {}, {
 		sortFns: {
 			NAME: (array) => array.sort((a, b) => a.name.localeCompare(b.name)),
 			AMOUNT: (array) => array.sort((a, b) => a.amount - b.amount),
@@ -80,45 +87,19 @@ export default function ImportTable({ nodes, submitTransactions }: Props) {
 
 	function handleDelete(idsToDelete: Set<Identifier>) {
 		// newTransactions = transactions.filter((transaction) => transaction.id
-		let newTransactions = transactions;
-		idsToDelete.forEach((id) => newTransactions.delete(id));
+		let newTransactions = transactions.filter((t) => !idsToDelete.has(t.id));
 		updateTransactions(newTransactions);
 	}
 
 	function updateTransactionValue(value: string, id: Identifier, property: string) {
-		let newTransactions = transactions;
-		let targetTransaction = newTransactions.get(id);
-		if (targetTransaction != undefined) {
-			switch (property) {
-				case "name":
-					targetTransaction.name = value;
-					break;
-
-				case "amount":
-					const newAmount = Number.parseFloat(value);
-					if (!isNaN(newAmount)) {
-						targetTransaction.amount = newAmount;
-					}
-					break;
-
-				case "category":
-					targetTransaction.category = value;
-					break;
-
-				case "date":
-					targetTransaction.date = value;
-					break;
-
-			}
-			newTransactions.set(id, targetTransaction);
-			updateTransactions(newTransactions);
-		}
+		let newTransactions = transactions.map((t) => t.id == id ? { ...t, [property]: value } : t);
+		updateTransactions(newTransactions);
 	}
 
 	return (
 		<>
 			<button onClick={() => { handleDelete(deleteSet) }}>Delete</button>
-			<Table data={{ nodes }} theme={theme} sort={sort}>
+			<Table data={{ nodes: rows }} theme={theme} sort={sort}>
 				{(tableList: TableNode) => (
 					<>
 						<Header>

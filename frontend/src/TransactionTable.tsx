@@ -86,8 +86,6 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 	});
 
 	nodes = nodes.filter((t) => (new Date(t.date)).getMonth() == month ? true : false);
-	console.log(nodes);
-
 
 	return (
 		<>
