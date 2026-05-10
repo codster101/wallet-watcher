@@ -356,3 +356,22 @@ func GetRules() []user.Rule {
 	return rules
 
 }
+
+func UpdateRule(value string, id int, property string) {
+	query := "UPDATE Rules SET " + property + "= ? WHERE Id = ?"
+	result, err := db.Exec(query, value, id)
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("Error Updating Transaction")
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
+		fmt.Printf("Query: UPDATE Transactions SET Name = %s WHERE Id = %d\n", value, id)
+	}
+}

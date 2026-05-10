@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── NAV ── */
+.rules-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid #1e1e24;
+  background: #0f0f11;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.rules-nav-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 0.15rem;
+  color: #e8e6e1;
+  text-decoration: none;
+}
+
+.rules-nav-title span { color: #7dd3d8; }
+
+.rules-nav-links {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.nav-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  color: #6b6b7a;
+  text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-link:hover { color: #e8e6e1; background: #1e1e24; }
+.nav-link.active { color: #7dd3d8; background: #1a2a2c; }
+
+/* ── LAYOUT ── */
+.rules-page {
+  min-height: 100vh;
+  background: #0f0f11;
+  padding: 0;
+}
+
+.rules-body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+
+.rules-header {
+  margin-bottom: 2.5rem;
+}
+
+.rules-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 0.2rem;
+  line-height: 1;
+  color: #e8e6e1;
+}
+
+.rules-header p {
+  margin-top: 0.5rem;
+  color: #6b6b7a;
+  font-size: 0.9rem;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── ADD RULE CARD ── */
+.add-rule-card {
+  /* background: #16161a; */
+  border: 1px solid #1e1e24;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.add-rule-card h2 {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  color: #7dd3d8;
+  margin-bottom: 1.25rem;
+}
+
+.rule-form-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  color: #6b6b7a;
+}
+
+.form-group select,
+.form-group input[type="text"] {
+  /* background: #0f0f11; */
+  border: 1px solid #2a2a32;
+  border-radius: 6px;
+  /* color: #e8e6e1; */
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  /* width: 100%; */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  appearance: none;
+}
+
+.form-group select:focus,
+.form-group input[type="text"]:focus {
+  border-color: #7dd3d8;
+  box-shadow: 0 0 0 2px rgba(125, 211, 216, 0.12);
+}
+
+.form-group input::placeholder { color: #3a3a46; }
+
+.btn-add {
+  background: #7dd3d8;
+  color: #0f0f11;
+  border: none;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06rem;
+  padding: 0.65rem 1.4rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+  align-self: end;
+}
+
+.btn-add:hover { background: #9de0e5; }
+.btn-add:active { transform: scale(0.97); }
+
+/* ── RULES LIST ── */
+.rules-list-header {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  color: #6b6b7a;
+  margin-bottom: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.rules-empty {
+  background: #16161a;
+  border: 1px dashed #2a2a32;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #3a3a46;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.rule-item {
+  /* background: #16161a; */
+  border: 1px solid #1e1e24;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.65rem;
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 0.75rem;
+  align-items: center;
+  transition: border-color 0.15s;
+}
+
+.rule-item:hover { border-color: #2a2a36; }
+
+.rule-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rule-field-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  /* color: #3a3a46; */
+}
+
+.rule-field select,
+.rule-field input[type="text"] {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  /* color: #e8e6e1; */
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+  appearance: none;
+}
+
+.rule-field select:hover,
+.rule-field input[type="text"]:hover {
+  /* background: #0f0f11; */
+  border-color: #2a2a32;
+}
+
+.rule-field select:focus,
+.rule-field input[type="text"]:focus {
+  /* background: #0f0f11; */
+  border-color: #7dd3d8;
+  box-shadow: 0 0 0 2px rgba(125, 211, 216, 0.1);
+}
+
+.rule-operator-badge {
+  display: inline-block;
+  background: #1a2a2c;
+  color: #7dd3d8;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid #2a3e40;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+  color: #3a3a46;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08rem;
+}
+
+@media (max-width: 620px) {
+  .rule-form-row { grid-template-columns: 1fr 1fr; }
+  .btn-add { grid-column: span 2; }
+  .rule-item { grid-template-columns: 1fr 1fr; }
+}

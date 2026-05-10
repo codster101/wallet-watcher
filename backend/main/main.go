@@ -314,12 +314,11 @@ func main() {
 		operator := req.FormValue("Operator")
 		target := req.FormValue("Target")
 
-		id := dbconn.AddRule(category, operator, target)
+		dbconn.AddRule(category, operator, target)
 
-		type IdResponse struct{ Id int }
+		rules := dbconn.GetRules()
 
-		response := IdResponse{Id: id}
-		json.NewEncoder(w).Encode(response)
+		json.NewEncoder(w).Encode(rules)
 
 		fmt.Println("Adding Rule: " + time.Since(start).String())
 	}
@@ -334,5 +333,35 @@ func main() {
 	}
 	mux.HandleFunc("/getRules", getRules)
 
+	// API for submitting transaction files
+	updateRule := func(w http.ResponseWriter, req *http.Request) {
+		start := time.Now()
+
+		// Create json type
+		type UpdateTransactionRequest struct {
+			Value    string `json:"value"`
+			Id       int    `json:"id"`
+			Property string `json:"property"`
+		}
+
+		// Parse Input
+		var body UpdateTransactionRequest
+		err := json.NewDecoder(req.Body).Decode(&body)
+		if err != nil {
+			fmt.Println("Error parsing the HTTP request")
+			log.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		value := body.Value
+		id := body.Id
+		property := body.Property
+
+		// Call DB to update the transaction
+		dbconn.UpdateRule(value, id, property)
+		fmt.Println("Updating Transaction: " + time.Since(start).String())
+
+	}
+	mux.HandleFunc("/updateRule", updateRule)
 	fmt.Println(http.ListenAndServe(":8080", mux))
 }
