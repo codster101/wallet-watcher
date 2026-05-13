@@ -24,8 +24,8 @@ function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: num
 	// Return in-edit element
 	return (
 		<div style={{ display: "flex", alignItems: "center", gap: "4%" }}>
-			<p>Budgeted: </p>
-			<input style={{ width: "75px" }}
+			<input
+				className='cat-budget-input'
 				type='number'
 				value={budgetValue}
 				onChange={(event) => { updateBudget(Number.parseFloat(event.target.value)) }}
@@ -34,12 +34,7 @@ function BudgetLabel({ name, budget, changeBudget }: { name: string, budget: num
 					changeBudget(name, budgetValue - oldBudget);
 					submitBudget(budgetValue);
 				}}
-				onKeyDown={(event) => {
-					if (event.key === 'Enter') {
-						updateCategory(name, budgetValue);
-						event.currentTarget.blur();
-					}
-				}}
+				onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur() }}
 			/>
 		</div>
 	);
@@ -54,47 +49,40 @@ export function CategoryDisplay({ categories, changeBudget }: { categories: Cate
 
 	const [month, setMonth] = useState((new Date()).getMonth())
 
-	function getBorderColor(budget: number, spent: number) {
-		if (budget < spent) {
-			return "#EF4444";
-		} else if (budget > spent) {
-			return "#22C55E";
-		}
-		return "#E3E8F0";
+	function cardClass(budget: number, spent: number) {
+		if (spent === 0) return 'cat-card'
+		return spent > budget ? 'cat-card over' : 'cat-card ok'
 	}
 
-	function getBackgroundColor(budget: number, spent: number) {
-		if (budget < spent) {
-			return "#FEF2F2";
-		} else if (budget > spent) {
-			return "#ECFDF5";
-		}
-		return "#F9FAFB";
+	function spentClass(budget: number, spent: number) {
+		if (spent === 0) return 'cat-spent empty'
+		return spent > budget ? 'cat-spent over' : 'cat-spent ok'
 	}
 
 	return (
-		<div id='right-panel'>
-			<select defaultValue={month} onChange={(event) => {
-				setMonth(Number.parseInt(event.target.value));
-			}}>
-				{months.map((month, i) => (
-					<option key={i} value={i}>{month}</option>
-				))}:
-			</select>
-			<div id='category-grid'>
+		<div className='cat-strip'>
+			<div className='cat-strip-header'>
+				<span className='sec-label' style={{ margin: 0 }}>Categories</span>
+				<select defaultValue={month} className='month-select' onChange={(event) => {
+					setMonth(Number.parseInt(event.target.value));
+				}}>
+					{months.map((month, i) => (
+						<option key={i} value={i}>{month}</option>
+					))}:
+				</select>
+			</div>
+
+			<div className='cat-scroll'>
 				{categories.map((category) => (
-					<div key={category.name} className='tile'
-						style={{
-							backgroundColor: getBackgroundColor(category.budget, category.spent[month]),
-							borderColor: getBorderColor(category.budget, category.spent[month])
-						}}>
-						<p>{category.name}</p>
-						<BudgetLabel
-							name={category.name}
-							budget={category.budget}
-							changeBudget={changeBudget}
-						/>
-						<p>Spent: {category.spent[month]}</p>
+					<div key={category.name} className={cardClass(category.budget, category.spent[month])}>
+						<div className="cat-name">{category.name}</div>
+						<div className="cat-budget-row">
+							<span className="cat-budget-label">Budget</span>
+							<BudgetLabel name={category.name} budget={category.budget} changeBudget={changeBudget} />
+						</div>
+						<div className={spentClass(category.budget, category.spent[month])}>
+							${category.spent[month].toFixed(2)} spent
+						</div>
 					</div>
 				))}
 			</div>

@@ -30,28 +30,22 @@ function EditableCell({ type, value, id, property, handleUpdate }:
 	// Return in-edit element
 	return (
 		<input
-			style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}
 			type={type}
 			value={cellValue}
 			onChange={(event) => { updateValue(event.target.value) }}
 			onBlur={() => { updateDB() }}
-			onKeyDown={(event) => {
-				if (event.key === 'Enter') {
-					updateDB();
-					event.currentTarget.blur();
-				}
-			}}
+			onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur() }}
 		/>
 	);
 }
 
-function DeleteCheckboxCell({ type, id, deleteSet }: { type: string, id: number, deleteSet: Set<Identifier> }) {
+function DeleteCheckboxCell({ id, deleteSet }: { id: number, deleteSet: Set<Identifier> }) {
 
 	// Return in-edit element
 	return (
 		<input
-			style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}
-			type={type}
+			// style={{ width: '100%', boxSizing: 'border-box', minWidth: 0 }}
+			type="checkbox"
 			onChange={(event) => { event.target.checked ? deleteSet.add(id) : deleteSet.delete(id) }}
 		/>
 	);
@@ -74,7 +68,73 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 
 	const deleteSet = new Set<Identifier>();
 
-	const theme = useTheme(getTheme());
+	// const theme = useTheme(getTheme());
+
+	const theme = useTheme([
+		getTheme(),
+		{
+			Table: `
+				--data-table-library_grid-template-columns: 36px 2fr 1fr 1.4fr 1.2fr;
+				font-family: 'DM Mono', monospace;
+				font-size: 0.8rem;
+				width: 100%;
+				border: none;
+				background: transparent;
+			      `,
+			HeaderRow: `background: #fafafa; border-bottom: 1px solid #e8e8ee;`,
+			HeaderCell: `
+				font-family: 'DM Mono', monospace;
+				font-size: 0.62rem;
+				letter-spacing: 0.08rem;
+				text-transform: uppercase;
+				color: #6b6b7a;
+				font-weight: 400;
+				padding: 0.55rem 0.75rem;
+				background: #fafafa;
+				border-bottom: 1px solid #e8e8ee;
+			      `,
+			Row: `
+				border-bottom: 1px solid #f0f0f5;
+				&:last-child { border-bottom: none; }
+				&:hover > * { background: #fafafa; }
+			      `,
+			Cell: `
+				padding: 0.5rem 0.75rem;
+				color: #374151;
+				background: #fff;
+				input[type="checkbox"] {
+				  accent-color: #7dd3d8;
+				  width: 14px;
+				  height: 14px;
+				  cursor: pointer;
+				}
+				input[type="text"],
+				input[type="number"],
+				input[type="date"] {
+				  width: 100%;
+				  background: transparent;
+				  border: 1px solid transparent;
+				  border-radius: 4px;
+				  color: #1a1a1a;
+				  font-family: 'DM Mono', monospace;
+				  font-size: 0.8rem;
+				  padding: 0.15rem 0.3rem;
+				  outline: none;
+				  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+				}
+				input[type="text"]:hover,
+				input[type="number"]:hover,
+				input[type="date"]:hover { border-color: #e2e2ea; }
+				input[type="text"]:focus,
+				input[type="number"]:focus,
+				input[type="date"]:focus {
+				  border-color: #7dd3d8;
+				  background: #f5f5f7;
+				  box-shadow: 0 0 0 2px rgba(125,211,216,0.1);
+				}
+			      `,
+		}
+	]);
 
 	const sort = useSort({ nodes }, {}, {
 		sortFns: {
@@ -88,16 +148,20 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 	nodes = nodes.filter((t) => (new Date(t.date)).getMonth() == month ? true : false);
 
 	return (
-		<>
-			<select defaultValue={month} onChange={(event) => {
-				setMonth(Number.parseInt(event.target.value));
-			}}>
-				{months.map((month, i) => (
-					<option key={i} value={i}>{month}</option>
-				))}:
-			</select>
-			<button onClick={() => { handleDelete(deleteSet) }}>Delete</button>
-			<Table data={{ nodes }} theme={theme} sort={sort} style={{ height: "500px" }}>
+		<div className='table-panel'>
+			<div className="table-controls">
+				<span className='sec-label' style={{ margin: 0 }}>Transactions</span>
+				<select className="month-select" style={{ marginLeft: 'auto' }} defaultValue={month} onChange={(event) => {
+					setMonth(Number.parseInt(event.target.value));
+				}}>
+					{months.map((month, i) => (
+						<option key={i} value={i}>{month}</option>
+					))}:
+				</select>
+				<button className='btn-delete-transaction' onClick={() => { handleDelete(deleteSet) }}>Delete Selected</button>
+			</div>
+
+			<Table data={{ nodes }} theme={theme} sort={sort} >
 				{(tableList: TableNode) => (
 					<>
 						<Header>
@@ -115,7 +179,6 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 								<Row key={item.id} item={item}>
 									<Cell>
 										<DeleteCheckboxCell
-											type="checkbox"
 											id={item.id}
 											deleteSet={deleteSet}
 										/>
@@ -162,7 +225,7 @@ export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
 					</>
 				)}
 			</Table>
-		</>
+		</div>
 	);
 };
 

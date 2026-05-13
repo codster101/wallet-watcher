@@ -8,6 +8,7 @@ import type { Identifier } from '@table-library/react-table-library/types/table'
 import SubmitMenu from './SubmitMenu.tsx'
 import type { Category } from './Category.tsx'
 import './App.css'
+import { Link } from 'react-router-dom'
 
 
 function App() {
@@ -129,48 +130,59 @@ function App() {
 
   return (
     <>
-      <h1 id='title'> WALLET<span>WATCHER</span></h1>
-      <div id='dashboard'>
-        <div id='left-panel'>
-          <div>
-            <form className='tile' onSubmit={sendData}>
-              <div className="inputField">
-                <p>Name: </p>
-                <input name="TransactionName" type="text" />
-              </div>
+      <nav className="app-nav">
+        <span className="app-nav-title">WALLET<span>WATCHER</span></span>
+        <div className="app-nav-links">
+          <Link to="/" className="nav-link active">Dashboard</Link>
+          <Link to="/rules" className="nav-link">Rules</Link>
+        </div>
+      </nav>
+      <div className='app-body'>
+        <div className='top-row'>
 
-              <div className="inputField">
-                <p>Amount: </p>
-                <input name="TransactionAmount" type="number" />
-              </div>
+          <div className='panel'>
+            <span className='sec-label'>Add transaction</span>
 
-              <div className="inputField">
-                <p>Category: </p>
-                <input name="TransactionCategory" type="text" />
-              </div>
+            <form onSubmit={sendData}>
+              <div className='form-grid' >
 
-              <div className="inputField">
-                <p>Date: </p>
-                <input name="TransactionDate" type="date" />
-              </div>
+                <div className="form-group">
+                  <label>Name</label>
+                  <input name="TransactionName" type="text" />
+                </div>
 
-              <button type="submit">Submit</button>
+                <div className="form-group">
+                  <label>Amount: </label>
+                  <input name="TransactionAmount" type="number" />
+                </div>
+
+                <div className="form-group">
+                  <label>Category: </label>
+                  <input name="TransactionCategory" type="text" />
+                </div>
+
+                <div className="form-group">
+                  <label>Date: </label>
+                  <input name="TransactionDate" type="date" />
+                </div>
+
+              </div>
             </form>
 
-            <div className="tile">
-              <button onClick={() => { setSubmitMenuOpen(true) }} style={{ width: "100%" }}>Add Transaction</button>
+            <div className="form-actions">
+              <button type="submit" className='btn-primary'>Submit</button>
+              <button type="button" className='btn-secondary' onClick={() => { setSubmitMenuOpen(true) }} >Add Transaction</button>
             </div>
           </div>
 
-          <div id='graph-div' className='tile tile-2'>
+          <div className='panel'>
+            <span className='sec-label'>Spending overview</span>
             <Graph categories={categories} />
           </div>
-
-          <div className='tile tile-3'>
-            <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} handleDelete={deleteTransaction} />
-          </div>
         </div>
+
         <CategoryDisplay categories={categories} changeBudget={changeBudget} />
+        <TransactionTable nodes={transactionList} handleUpdate={updateTransaction} handleDelete={deleteTransaction} />
       </div>
       {submitMenuOpen && (<SubmitMenu setSubmitMenuOpen={setSubmitMenuOpen} submitTransactions={addTransactions} />)}
     </>

@@ -164,7 +164,16 @@ export default function ImportTable({ nodes, submitTransactions }: Props) {
 					</>
 				)}
 			</Table>
-			<button onClick={() => { submitTransactions([...transactions.values()]) }}>Submit</button>
+			{transactions.length > 0 && (
+				<div className="submit-menu-footer">
+					<button className="btn-primary" onClick={() => submitTransactions(transactions)}>
+						Submit all
+					</button>
+					<span className="submit-menu-count">
+						{transactions.length} transaction{transactions.length !== 1 ? 's' : ''} ready
+					</span>
+				</div>
+			)}
 		</>
 	);
 };

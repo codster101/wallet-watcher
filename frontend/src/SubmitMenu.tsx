@@ -7,42 +7,42 @@ export default function SubmitMenu({ setSubmitMenuOpen, submitTransactions }: { 
 	const [fileFormat, updateFileFormat] = useState("card")
 	const [importedTransactions, updateImportedTransactions] = useState<Transaction[]>([])
 
-	function readFile(file: File): Promise<string> {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.onload = () => resolve(reader.result as string);
-			reader.onerror = () => reject(reader.error);
-			reader.readAsText(file);
-		});
-	}
-
-	function parseRow(row: string): Transaction {
-		const fields = row.split(",");
-
-		let transaction: Transaction = { name: "", amount: 0, category: "", date: "", id: 0 };
-		let amount = 0.0;
-		let dateString = "";
-		let [month, day, year] = ["", "", ""];
-		switch (fileFormat) {
-			case "card":
-				amount = isNaN(Number.parseFloat(fields[5])) ? 0.00 : Math.abs(Number.parseFloat(fields[5]));
-				console.log(fields[0]);
-				[month, day, year] = fields[0].split("/");
-				console.log([month, day, year]);
-				dateString = `${year}-${month}-${day}`;
-				transaction = { name: fields[2], amount: amount, category: fields[3], date: dateString, id: 0 };
-				break;
-			case "bank-account":
-				amount = isNaN(Number.parseFloat(fields[3])) ? 0.00 : Math.abs(Number.parseFloat(fields[3]));;
-				[month, day, year] = fields[0].split("/");
-				dateString = `${year}-${month}-${day}`;
-				transaction = { name: fields[2], amount: amount, category: fields[4], date: dateString, id: 0 };
-				break;
-		}
-
-		// console.log(transaction);
-		return transaction;
-	}
+	// function readFile(file: File): Promise<string> {
+	// 	return new Promise((resolve, reject) => {
+	// 		const reader = new FileReader();
+	// 		reader.onload = () => resolve(reader.result as string);
+	// 		reader.onerror = () => reject(reader.error);
+	// 		reader.readAsText(file);
+	// 	});
+	// }
+	//
+	// function parseRow(row: string): Transaction {
+	// 	const fields = row.split(",");
+	//
+	// 	let transaction: Transaction = { name: "", amount: 0, category: "", date: "", id: 0 };
+	// 	let amount = 0.0;
+	// 	let dateString = "";
+	// 	let [month, day, year] = ["", "", ""];
+	// 	switch (fileFormat) {
+	// 		case "card":
+	// 			amount = isNaN(Number.parseFloat(fields[5])) ? 0.00 : Math.abs(Number.parseFloat(fields[5]));
+	// 			console.log(fields[0]);
+	// 			[month, day, year] = fields[0].split("/");
+	// 			console.log([month, day, year]);
+	// 			dateString = `${year}-${month}-${day}`;
+	// 			transaction = { name: fields[2], amount: amount, category: fields[3], date: dateString, id: 0 };
+	// 			break;
+	// 		case "bank-account":
+	// 			amount = isNaN(Number.parseFloat(fields[3])) ? 0.00 : Math.abs(Number.parseFloat(fields[3]));;
+	// 			[month, day, year] = fields[0].split("/");
+	// 			dateString = `${year}-${month}-${day}`;
+	// 			transaction = { name: fields[2], amount: amount, category: fields[4], date: dateString, id: 0 };
+	// 			break;
+	// 	}
+	//
+	// 	// console.log(transaction);
+	// 	return transaction;
+	// }
 
 	// async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 	// 	const file = e.target.files?.[0];
@@ -92,20 +92,41 @@ export default function SubmitMenu({ setSubmitMenuOpen, submitTransactions }: { 
 	}
 
 	return (
-		<div className="menu-backdrop">
-			<div id="submit-menu">
-				<h1>Submit</h1>
-				<input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} />
-				<button className="submit-menu-buttons" onClick={() => fileInputRef.current?.click()}>SelectFile</button>
-				<br />
-				<button className={fileFormat == "card" ? "submit-menu-buttons selected-button" : "submit-menu-buttons"}
-					onClick={() => { updateFileFormat("card") }}>Card</button>
-				<button className={fileFormat == "bank-account" ? "submit-menu-buttons selected-button" : "submit-menu-buttons"}
-					onClick={() => { updateFileFormat("bank-account") }}>Bank Account</button>
-				<br />
-				<button className="submit-menu-buttons" onClick={() => setSubmitMenuOpen(false)}>Close</button>
+		<div className="menu-backdrop" onClick={e => { if (e.target === e.currentTarget) setSubmitMenuOpen(false) }}>
+			<div className="submit-menu">
+				<div className="submit-menu-header">
+					<h1>Import Transaction</h1>
+					<button className="btn-secondary" onClick={() => setSubmitMenuOpen(false)}>Close</button>
+				</div>
+				<div className="submit-menu-body">
+					<div className="submit-menu-row">
+						<span className="sec-label" style={{ margin: 0 }}>Format</span>
+						<div className="format-toggle">
+							<button
+								className={`format-btn${fileFormat === 'card' ? ' active' : ''}`}
+								onClick={() => updateFileFormat('card')}
+							>
+								Card
+							</button>
+							<button
+								className={`format-btn${fileFormat === 'bank-account' ? ' active' : ''}`}
+								onClick={() => updateFileFormat('bank-account')}
+							>
+								Bank account
+							</button>
+						</div>
+
+						<input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} />
+						<button className="btn-primary" style={{ marginLeft: 'auto' }} onClick={() => fileInputRef.current?.click()}>SelectFile</button>
+					</div>
+
+					<div className="submit-menu-table-wrap">
+						<ImportTable nodes={importedTransactions} submitTransactions={closeMenu} />
+					</div>
+				</div>
+
+
 			</div>
-			<ImportTable nodes={importedTransactions} submitTransactions={closeMenu} />
 		</div>
 	);
 }
