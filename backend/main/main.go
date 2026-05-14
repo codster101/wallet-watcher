@@ -17,7 +17,7 @@ func main() {
 	dbconn.ConnectToDB()
 
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir("./frontend/dist/")))
+	mux.Handle("/", http.FileServer(http.Dir("./dist")))
 
 	// Calculate category spent values
 	// This will query the DB for all transactions and put their totals in the corresponding category

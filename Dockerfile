@@ -1,15 +1,32 @@
-FROM golang:1.25
+# Stage 1: build frontend
+FROM oven/bun:1 AS frontend-builder
+
+WORKDIR /usr/src/app
+
+COPY frontend/package.json frontend/bun.lockb ./
+RUN bun install --frozen-lockfile
+
+COPY frontend/ .
+RUN bun run build
+
+# Stage 2: build backend
+FROM golang:1.25 AS backend-builder
 
 WORKDIR /usr/src/app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-ENV DBUSER=BudgetApp
-ENV DBPASS=M0n3yB@gs
-
-
 COPY . .
 RUN go build -v -o /usr/local/bin/app ./...
 
+# Stage 3: final image
+FROM alpine:latest
+
+WORKDIR /usr/src/app
+
+COPY --from=backend-builder /usr/local/bin/app /usr/local/bin/app
+COPY --from=frontend-builder usr/src/app/dist /dist
+
+EXPOSE 8080
 CMD ["app"]

@@ -22,7 +22,7 @@ func ConnectToDB() {
 	cfg.Passwd = os.Getenv("DBPASS")
 	cfg.Net = "tcp"
 	cfg.Addr = os.Getenv("DBADDR")
-	cfg.DBName = "Finance"
+	cfg.DBName = os.Getenv("DBNAME")
 
 	// Get a database handle.
 	var err error
