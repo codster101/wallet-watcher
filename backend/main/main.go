@@ -81,6 +81,9 @@ func main() {
 			Categories:   categories,
 		}
 
+		fmt.Println(transactions)
+		fmt.Println(categories)
+
 		json.NewEncoder(w).Encode(body)
 
 		fmt.Println("Load Page" + time.Since(start).String())
@@ -133,10 +136,10 @@ func main() {
 		start := time.Now()
 		// Create json type
 		type requestJson struct {
-			Name     string `json:"name"`
-			Amount   string `json:"amount"`
-			Category string `json:"category"`
-			Date     string `json:"date"`
+			Name     string  `json:"name"`
+			Amount   float64 `json:"amount"`
+			Category string  `json:"category"`
+			Date     string  `json:"date"`
 		}
 
 		// Parse Input
@@ -151,11 +154,11 @@ func main() {
 		transactions := []user.Transaction{}
 		for _, t := range body {
 
-			amount, err := strconv.ParseFloat(t.Amount, 64)
-			if err != nil {
-				fmt.Println("Error parsing the input value")
-				log.Fatal(err)
-			}
+			// amount, err := strconv.ParseFloat(t.Amount, 64)
+			// if err != nil {
+			// 	fmt.Println("Error parsing the input value")
+			// 	log.Fatal(err)
+			// }
 
 			category := strings.ToUpper(string(t.Category[0])) + strings.ToLower(t.Category[1:])
 
@@ -165,7 +168,7 @@ func main() {
 				fmt.Println("Error: unrecognized date format. Expected yyyy-mm-dd")
 				log.Fatal(err)
 			}
-			transactions = append(transactions, user.NewTransaction(t.Name, amount, category, date))
+			transactions = append(transactions, user.NewTransaction(t.Name, t.Amount, category, date))
 
 		}
 

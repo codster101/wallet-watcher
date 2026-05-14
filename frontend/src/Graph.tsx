@@ -48,14 +48,17 @@ const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 export function Graph({ categories }: { categories: Category[] }) {
 
 	function SpentLine() {
+		if (categories == null || categories.length == 0) return Array(12).fill(0);
 		return categories.reduce((sum, current) => current.name != "Income" ? sum.map((x, i) => x + current.spent[i]) : sum, Array(12).fill(0));
 	}
 
 	function IncomeLine() {
+		if (categories == null || categories.length == 0) return Array(12).fill(0);
 		return categories.reduce((sum, current) => current.name == "Income" ? sum.map((x, i) => x + current.spent[i]) : sum, Array(12).fill(0));
 	}
 
 	function BudgetLine() {
+		if (categories == null || categories.length == 0) return Array(12).fill(0);
 		return Array(12).fill(categories.reduce((sum, current) => current.name != "Income" ? sum + current.budget : sum, 0));
 	}
 

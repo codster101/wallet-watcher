@@ -59,6 +59,7 @@ export function CategoryDisplay({ categories, changeBudget }: { categories: Cate
 		return spent > budget ? 'cat-spent over' : 'cat-spent ok'
 	}
 
+	if (categories == null) categories = []
 	return (
 		<div className='cat-strip'>
 			<div className='cat-strip-header'>

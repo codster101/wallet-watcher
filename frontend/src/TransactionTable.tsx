@@ -58,6 +58,7 @@ interface Props {
 }
 
 export function TransactionTable({ nodes, handleUpdate, handleDelete }: Props) {
+	if (nodes == null) nodes = [];
 
 	const [month, setMonth] = useState((new Date()).getMonth())
 	const months = [

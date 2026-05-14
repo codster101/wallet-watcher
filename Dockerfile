@@ -14,10 +14,10 @@ FROM golang:1.25 AS backend-builder
 
 WORKDIR /usr/src/app
 
-COPY go.mod go.sum ./
+COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
-COPY . .
+COPY backend/ .
 RUN go build -v -o /usr/local/bin/app ./...
 
 # Stage 3: final image

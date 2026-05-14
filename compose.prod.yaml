@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mysql
+    env_file: "wallet_watcher.env"
+    volumes:
+      - db_data_prod:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    env_file: "wallet_watcher.env"
+    environment:
+      # These map the env file vars into what your Go code reads via os.Getenv
+      DBUSER: ${MYSQL_USER}
+      DBPASS: ${MYSQL_PASSWORD}
+      DBADDR: db:3306
+      DBNAME: Wallet_Watcher
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  db_data_prod:
