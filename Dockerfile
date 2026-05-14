@@ -26,7 +26,7 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY --from=backend-builder /usr/local/bin/app /usr/local/bin/app
-COPY --from=frontend-builder usr/src/app/dist /dist
+COPY --from=frontend-builder /usr/src/app/dist /dist
 
 EXPOSE 8080
 CMD ["app"]

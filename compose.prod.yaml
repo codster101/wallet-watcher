@@ -10,7 +10,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     env_file: "wallet_watcher.env"
     environment:
       # These map the env file vars into what your Go code reads via os.Getenv
