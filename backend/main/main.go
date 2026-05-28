@@ -18,6 +18,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("./dist")))
+	mux.Handle("/api/", http.StripPrefix("/api", mux))
 
 	// Calculate category spent values
 	// This will query the DB for all transactions and put their totals in the corresponding category
@@ -35,8 +36,7 @@ func main() {
 		// For each transaction add its total to the category total
 		for _, t := range transactions {
 			if index, ok := categoryRef[strings.ToLower(t.Category())]; !ok { // If the category does not exists
-				fmt.Println("Category of transaction not found in Category table")
-				log.Fatal(t.Category())
+				dbconn.AddCategory(t.Category())
 			} else {
 				categories[index].AddToSpent(t.Amount(), t.GetMonthInt()-1)
 			}

@@ -48,26 +48,7 @@ func AddTransaction(transaction user.Transaction) {
 		log.Fatal(err)
 	}
 
-	// Check if the category of the new transaction exists in the categories db
-	row := db.QueryRow("SELECT Name FROM Categories WHERE Name = ?", transaction.Category())
-
-	var (
-		name string
-	)
-
-	// If there was the category was not found in the database then add it
-	if err := row.Scan(&name); err == sql.ErrNoRows {
-		_, err1 := db.Exec("INSERT INTO Categories (Name, Amount) VALUES(?, ?)",
-			transaction.Category(), 0.0)
-		if err1 != nil {
-			fmt.Println("Error Adding Category")
-			log.Fatal(err)
-		}
-	} else if err != nil {
-		fmt.Println("Error reading row")
-		log.Fatal(err)
-	}
-
+	AddCategory(transaction.Category())
 }
 
 func AddTransactions(transactions []user.Transaction) {
@@ -202,6 +183,30 @@ func GetTransactionsInMonth(month int) []user.Transaction {
 	return transactions
 }
 
+func AddCategory(category string) {
+
+	// Check if the category of the new transaction exists in the categories db
+	query := "SELECT Name FROM Categories WHERE Name = ?"
+	row := db.QueryRow(query, category)
+
+	var (
+		name string
+	)
+
+	// If there was the category was not found in the database then add it
+	if err := row.Scan(&name); err == sql.ErrNoRows {
+		_, err1 := db.Exec("INSERT INTO Categories (Name, Amount) VALUES(?, ?)",
+			category, 0.0)
+		if err1 != nil {
+			fmt.Println("Error Adding Category")
+			log.Fatal(err)
+		}
+	} else if err != nil {
+		fmt.Println("Error reading row")
+		log.Fatal(err)
+	}
+}
+
 func GetAllCategories() []user.Category {
 	results, err := db.Query("SELECT * FROM Categories")
 	if err != nil {
@@ -249,6 +254,10 @@ func UpdateTransaction(value string, id int, property string) {
 	if rows != 1 {
 		fmt.Printf("Expected 1 row affected. %d rows affected\n", rows)
 		fmt.Printf("Query: UPDATE Transactions SET Name = %s WHERE Id = %d\n", value, id)
+	}
+
+	if strings.ToLower(property) == "category" {
+		AddCategory(value)
 	}
 }
 
