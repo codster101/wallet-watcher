@@ -29,27 +29,28 @@ function App() {
 
   }
 
-  async function pullTransactions() {
-    console.time("Pull Transactions");
-    let response = await fetch("api/getTransactions");
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    let result = await response.json();
-    // console.log("Response: " + JSON.stringify(result));
-    setTransactionList(result)
-
-    updateGraph();
-    console.timeEnd("Pull Transactions");
-  }
+  // async function pullTransactions() {
+  //   console.time("Pull Transactions");
+  //   let response = await fetch("api/getTransactions");
+  //   if (!response.ok) {
+  //     throw new Error(`Response status: ${response.status}`);
+  //   }
+  //
+  //   let result = await response.json();
+  //   // console.log("Response: " + JSON.stringify(result));
+  //   setTransactionList(result)
+  //
+  //   updateGraph();
+  //   console.timeEnd("Pull Transactions");
+  // }
 
   async function addTransactions(newTransactions: Transaction[]) {
 
     console.time("Add Transactions");
     await fetch("/api/addTransactions", { method: "POST", body: JSON.stringify(newTransactions) });
 
-    pullTransactions();
+    // pullTransactions();
+    loadPage();
 
     console.timeEnd("Add Transactions");
   }
@@ -64,7 +65,8 @@ function App() {
       throw new Error('Response status: ${response.status}');
     }
 
-    pullTransactions();
+    // pullTransactions();
+    loadPage();
     console.timeEnd("Update Transactions");
   }
 
@@ -78,23 +80,24 @@ function App() {
       throw new Error('Response status: ${response.status}');
     }
 
-    pullTransactions();
+    // pullTransactions();
+    loadPage();
     console.timeEnd("Delete Transactions");
   }
 
-  async function updateGraph() {
-    console.time("Update Spent Line");
-    let response = await fetch("api/getCategories");
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    let result = await response.json();
-    // console.log("Response: " + JSON.stringify(result));
-    console.timeEnd("Update Spent Line");
-    updateCategories(result)
-
-  }
+  // async function updateGraph() {
+  //   console.time("Update Spent Line");
+  //   let response = await fetch("api/getCategories");
+  //   if (!response.ok) {
+  //     throw new Error(`Response status: ${response.status}`);
+  //   }
+  //
+  //   let result = await response.json();
+  //   // console.log("Response: " + JSON.stringify(result));
+  //   console.timeEnd("Update Spent Line");
+  //   updateCategories(result)
+  //
+  // }
 
   function changeBudget(name: string, change: number) {
     const updatedCategories = categories.map(c => c.name == name ? { ...c, budget: c.budget + change } : c);
@@ -120,7 +123,8 @@ function App() {
       try {
         await fetch("/api/addTransaction", { method: "POST", body: formData, });
 
-        pullTransactions();
+        // pullTransactions();
+        loadPage();
 
       } catch (e) {
         console.error(e)
@@ -166,11 +170,11 @@ function App() {
                   <input name="TransactionDate" type="date" />
                 </div>
 
+                <button type="submit" className='btn-primary' style={{ marginTop: "5px" }}>Submit</button>
               </div>
             </form>
 
             <div className="form-actions">
-              <button type="submit" className='btn-primary'>Submit</button>
               <button type="button" className='btn-secondary' onClick={() => { setSubmitMenuOpen(true) }} >Add Transaction</button>
             </div>
           </div>
