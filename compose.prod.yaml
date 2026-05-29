@@ -14,8 +14,6 @@ services:
     env_file: "wallet_watcher.env"
     environment:
       # These map the env file vars into what your Go code reads via os.Getenv
-      DBUSER: ${MYSQL_USER}
-      DBPASS: ${MYSQL_PASSWORD}
       DBADDR: db:3306
       DBNAME: Wallet_Watcher
     ports:
